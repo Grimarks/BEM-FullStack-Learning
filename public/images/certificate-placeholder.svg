@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1164 760">
+  <rect width="1164" height="760" fill="#fff9f1"/>
+  <rect x="28" y="28" width="1108" height="704" rx="18" fill="none" stroke="#7e3bed" stroke-width="4"/>
+  <rect x="48" y="48" width="1068" height="664" rx="10" fill="none" stroke="#ece4fb" stroke-width="2"/>
+  <path d="M0 620 L260 760 L0 760 Z" fill="#ff4d8d"/>
+  <path d="M1164 0 L1164 170 L930 0 Z" fill="#c6ff34"/>
+  <text x="582" y="250" text-anchor="middle" font-family="Georgia, serif" font-size="78" fill="#4a1fa8" letter-spacing="6">SERTIFIKAT</text>
+  <text x="582" y="310" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="30" fill="#5b506e">diberikan kepada</text>
+  <text x="582" y="410" text-anchor="middle" font-family="Georgia, serif" font-style="italic" font-size="64" fill="#120a24">[Nama]</text>
+  <line x1="352" y1="440" x2="812" y2="440" stroke="#dbd9e6" stroke-width="2"/>
+  <text x="582" y="500" text-anchor="middle" font-family="monospace" font-size="22" fill="#73756d" letter-spacing="4">GANTI GAMBAR INI DENGAN SERTIFIKAT ASLI</text>
+  <circle cx="582" cy="610" r="44" fill="#7e3bed"/>
+  <path d="M582 580 l9 21 22 2 -17 14 6 22 -20 -12 -20 12 6 -22 -17 -14 22 -2z" fill="#fff9f1"/>
+</svg>

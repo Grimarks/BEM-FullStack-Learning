@@ -1,0 +1,166 @@
+@import "tailwindcss";
+@theme {
+    /* ---- Warna: netral ---- */
+    --color-night: #120a24;       /* paling gelap: judul + section kontak */
+    --color-ink: #17201c;         /* teks isi, tombol gelap */
+    --color-plum: #26143d;        /* pil navbar */
+    --color-muted: #5b506e;       /* teks sekunder */
+    --color-stone: #6b6d65;       /* label mono kecil (digelapkan dari #73756d agar lolos kontras WCAG AA) */
+    --color-paper: #f7f7ff;       /* latar terang utama */
+    --color-lilac: #f2edff;       /* latar section sertifikat */
+    --color-cream: #fff9f1;       /* teks di latar gelap, tombol terang */
+    --color-sand: #e6e1d5;        /* tombol bulat sekunder */
+    --color-line: #dbd9e6;        /* garis pemisah */
+    --color-edge: #ece4fb;        /* border kartu */
+
+    /* ---- Warna: brand + aksen ---- */
+    --color-violet: #7e3bed;      /* aksen utama (baris kedua judul) */
+    --color-violet-deep: #4a1fa8; /* teks aksen di latar terang */
+    --color-lime: #c6ff34;
+    --color-pink: #ff4d8d;
+
+    /* ---- Warna: titik eyebrow (satu per section) ---- */
+    --color-coral: #fc9073;
+    --color-sun: #ffda41;
+    --color-sage: #8b9d82;
+    --color-steel: #8da0c3;
+
+    /* ---- Tipografi ---- */
+    --font-display: "Passion One", system-ui, sans-serif;
+    --font-sans: "Space Grotesk Variable", system-ui, sans-serif; /* menimpa font bawaan Tailwind untuk teks biasa */
+    --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+    --font-serif: "DM Serif Display", Georgia, serif;
+
+    /* Ukuran huruf yang "mengalir": clamp(minimum, ideal, maksimum) ikut membesar
+       sesuai lebar layar, jadi satu class cukup untuk HP DAN desktop. */
+    --text-hero: clamp(3.25rem, 1.8rem + 5.2vw, 6rem);
+    --text-hero--line-height: 0.95; /* akhiran --line-height = tinggi baris untuk text-hero */
+    /* min(..., 8svh): di layar laptop yang pendek, tinggi layar ikut membatasi ukurannya */
+    --text-display: clamp(2.5rem, min(1.6rem + 3.6vw, 8svh), 4.5rem);
+    --text-display--line-height: 0.95;
+    --text-title: clamp(1.5rem, 1.25rem + 0.8vw, 1.875rem);
+    --text-title--line-height: 1.1;
+    --text-label: 0.6875rem; /* label mono 11px */
+    --text-label--line-height: 1.4;
+
+    --tracking-display: -0.01em;
+    --tracking-label: 0.18em;
+
+    /* ---- Layout ---- */
+    --container-page: 77.5rem; /* kolom konten 1240px, diukur dari desain */
+    --spacing-slide: clamp(1.25rem, 3.5svh, 3rem); /* jarak antar blok di dalam satu slide */
+
+    /* ---- Radius + bayangan ---- */
+    --radius-card: 1.25rem; /* 20px */
+    --radius-panel: 1.75rem; /* 28px (modal) */
+    --shadow-card: 0 1px 0 rgb(255 255 255 / 0.8) inset, 0 12px 32px -12px rgb(74 31 168 / 0.18);
+    --shadow-float: 0 24px 60px -20px rgb(18 10 36 / 0.35);
+}
+
+/* ==========================================================================
+   UTILITY BUATAN SENDIRI: pola yang berulang di desain tapi tidak ada di
+   Tailwind. Dipakai seperti class biasa: <div class="bg-grid">, dan bisa
+   diberi awalan responsif juga, misalnya lg:slide.
+   ========================================================================== */
+
+/* Kotak-kotak tipis di belakang section terang.
+   var(--grid-line, ...) = pakai --grid-line kalau ada, kalau tidak pakai warna cadangan.
+   Section Contact mengisi --grid-line sendiri supaya garisnya putih. */
+@utility bg-grid {
+    background-image:
+            linear-gradient(to right, var(--grid-line, rgb(126 59 237 / 0.06)) 1px, transparent 1px),
+            linear-gradient(to bottom, var(--grid-line, rgb(126 59 237 / 0.06)) 1px, transparent 1px);
+    background-size: 64px 64px;
+}
+
+/* Pola titik-titik sebagai hiasan di tepi halaman */
+@utility bg-dots {
+    background-image: radial-gradient(var(--dot, rgb(126 59 237 / 0.35)) 1.6px, transparent 1.8px);
+    background-size: 22px 22px;
+}
+
+/* Memudarkan elemen ke arah tepinya (dipakai pada pola titik) */
+@utility fade-edges {
+    mask-image: radial-gradient(closest-side, black 55%, transparent);
+}
+
+/* Bisa digeser ke samping tanpa scrollbar yang terlihat (carousel) */
+@utility no-scrollbar {
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+/* Section yang memenuhi satu layar, isinya di tengah. Padding atas memberi
+   ruang untuk navbar yang melayang. Dipakai sebagai `lg:slide`, jadi di HP
+   section tetap mengalir biasa. (Lihat docs/PANDUAN.md bagian 8.)
+   svh = "small viewport height": tinggi layar yang tidak berubah saat
+   address bar HP muncul/hilang. */
+@utility slide {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100svh;
+    padding-block: 5.5rem 1.5rem;
+}
+
+/* Lebar kartu carousel. Di laptop lebarnya juga bergantung pada tinggi layar,
+   supaya seluruh kartu (rasio 582/380) muat di slide di bawah judul. */
+@utility carousel-card {
+    width: min(582px, 85vw);
+    @media (width >= 64rem) {
+        width: min(582px, 85vw, max(24rem, calc((100svh - 22.5rem) * 1.5316)));
+    }
+}
+
+/* ==========================================================================
+   BASE: gaya untuk elemen HTML polos (html, body, ...), bukan class.
+   ========================================================================== */
+@layer base {
+    html {
+        /* Klik link #id = halaman meluncur halus. Link berhenti tepat di tepi atas
+           section; padding atas tiap section menjaga isinya tetap di bawah navbar. */
+        scroll-behavior: smooth;
+    }
+
+    body {
+        /* @apply = memakai class Tailwind di dalam CSS biasa */
+        @apply bg-paper font-sans text-ink antialiased;
+    }
+
+    /* Selama <dialog> terbuka, halaman di belakangnya tidak boleh ikut digulir. */
+    html:has(dialog[open]) {
+        overflow: hidden;
+    }
+
+    /* Pengguna keyboard harus bisa MELIHAT posisi fokus (aksesibilitas). */
+    :focus-visible {
+        outline: 2px solid var(--color-violet);
+        outline-offset: 3px;
+    }
+
+    /* Hormati pengaturan "kurangi gerakan" di sistem operasi pengguna. */
+    @media (prefers-reduced-motion: reduce) {
+        html {
+            scroll-behavior: auto;
+        }
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+}
+
+/* Animasi saat modal muncul */
+@keyframes dialog-in {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.98);
+    }
+}
+dialog[open] {
+    animation: dialog-in 220ms ease-out;
+}
