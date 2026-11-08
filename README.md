@@ -24,3 +24,4 @@ Buka `http://localhost:5173`.
 
 Silakan buat folder `BackEnd/` di root repo ini, lalu jalankan `go mod init` di dalamnya.
 Simpan konfigurasi rahasia di `.env` (sudah di-ignore) dan sediakan `.env.example` sebagai contoh.
+# BEM-FullStack-Learning
