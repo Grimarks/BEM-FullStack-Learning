@@ -10,13 +10,11 @@ export const profile = {
 
     itch:
         "Saya membantu tim meluncurkan produk yang kuat dan mudah dikelola — memadukan pemikiran produk, kejelasan visual, dan pemecahan masalah berbasis kode.",
-    motto: "Sedikit niat di setiap interaksi.",
+    motto: "Tidak ada niat di setiap interaksi.",
     about:
-        "Saya bermitra dengan tim untuk mengubah ide produk menjadi pengalaman yang dipoles dan mudah dikelola. Pendekatan saya menyeimbangkan kejelasan visual, kelayakan teknis, dan kolaborasi yang efektif.",
+        "Saya suka tidur",
     highlights: [
-        "Pemikiran produk dari konsep hingga pengiriman",
-        "Antarmuka bersih dan basis kode yang skalabel",
-        "Kolaborasi kuat antara desain dan teknik",
+        "Tuliskan Highlight yang kalian Mau"
     ],
 
     contacts: [
@@ -28,11 +26,8 @@ export const profile = {
 
     tech: ["react", "nodejs", "typescript", "postgresql", "figma"],
     skills: [
-        "Pemikiran Produk",
-        "Pengembangan Frontend",
-        "Pengembangan Backend",
-        "Desain REST API",
-        "Manajemen Database",
+        "Tidur",
+        "Pecut AI"
     ],
 
     socials: [
