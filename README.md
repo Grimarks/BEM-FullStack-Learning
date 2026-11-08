@@ -1,16 +1,26 @@
-# React + Vite
+# BEM FullStack Learning
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Repo belajar fullstack: frontend dengan React + Vite + Tailwind, backend dengan Go.
 
-Currently, two official plugins are available:
+## Struktur
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```
+BEM-FullStack-Learning/
+├── FrontEnd/   # React + Vite + Tailwind CSS
+└── BackEnd/    # Go (dikerjakan Divisi BackEnd)
+```
 
-## React Compiler
+## FrontEnd
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+cd FrontEnd
+npm install
+npm run dev
+```
 
-## Expanding the ESLint configuration
+Buka `http://localhost:5173`.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## BackEnd (Go)
+
+Silakan buat folder `BackEnd/` di root repo ini, lalu jalankan `go mod init` di dalamnya.
+Simpan konfigurasi rahasia di `.env` (sudah di-ignore) dan sediakan `.env.example` sebagai contoh.
