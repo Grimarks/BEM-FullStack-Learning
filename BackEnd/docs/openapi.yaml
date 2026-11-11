@@ -1,0 +1,856 @@
+openapi: 3.0.3
+info:
+  title: Portfolio CMS API
+  version: 1.0.0
+  description: |
+    API untuk mengelola portfolio pribadi. Login menggunakan cookie sesi bernama `portfolio_session`.
+    Jalankan `POST /api/auth/login` di Swagger UI terlebih dahulu. Browser akan menyimpan cookie sesi.
+    Semua endpoint admin memerlukan sesi. Tanggal memakai format `YYYY-MM-DD`.
+servers:
+  - url: http://localhost:8080
+    description: Server lokal
+tags:
+  - name: Health
+  - name: Publik
+  - name: Autentikasi
+  - name: Dashboard
+  - name: Konten website
+  - name: Profil
+  - name: Perjalanan
+  - name: Proyek
+  - name: Sertifikasi
+  - name: Media sosial
+  - name: Ikon
+  - name: Teknologi
+  - name: Teknologi profil
+  - name: Unggah
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Cek server berjalan
+      responses:
+        '200':
+          description: Server aktif
+          content:
+            application/json:
+              example: {status: ok}
+  /api/public/portfolio:
+    get:
+      tags: [Publik]
+      summary: Ambil semua data portfolio publik
+      responses:
+        '200':
+          description: Data portfolio
+          content:
+            application/json:
+              example:
+                website_content: {id_konten: 1, nama_tampilan: "Nama Saya", judul_utama: "Halo, saya developer", deskripsi: "Deskripsi singkat"}
+                profile: {profile: {id_profil: 1, nama_lengkap: "Nama Saya"}, technologies: []}
+                experiences: []
+                projects: []
+                certificates: []
+                social_links: []
+        '500': {$ref: '#/components/responses/ServerError'}
+  /api/auth/login:
+    post:
+      tags: [Autentikasi]
+      summary: Login admin dan membuat cookie sesi
+      description: Cookie disimpan oleh browser. Swagger UI mengirim cookie untuk request selanjutnya.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/LoginRequest'}
+            example: {username: admin, password: "PasswordKuat123!"}
+      responses:
+        '200':
+          description: Login berhasil; response menyertakan Set-Cookie.
+          headers:
+            Set-Cookie:
+              schema: {type: string}
+              description: Cookie HttpOnly portfolio_session.
+          content:
+            application/json:
+              example: {message: "Login berhasil", username: admin, expires_at: "2026-11-12T12:00:00Z"}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401':
+          description: Username atau password salah
+          content:
+            application/json:
+              example: {error: "Nama pengguna atau kata sandi salah"}
+  /api/auth/logout:
+    post:
+      tags: [Autentikasi]
+      summary: Logout dan menghapus sesi
+      security: [{SessionCookie: []}]
+      responses:
+        '204': {description: Logout berhasil}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /api/auth/me:
+    get:
+      tags: [Autentikasi]
+      summary: Cek sesi admin aktif
+      security: [{SessionCookie: []}]
+      responses:
+        '200':
+          description: Identitas admin
+          content:
+            application/json:
+              example: {username: admin}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /api/auth/password:
+    put:
+      tags: [Autentikasi]
+      summary: Ganti password menggunakan password lama
+      security: [{SessionCookie: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/PasswordRequest'}
+            example: {current_password: "PasswordLama123!", new_password: "PasswordBaru456!"}
+      responses:
+        '200':
+          description: Password diperbarui; sesi dihapus sehingga perlu login kembali
+          content:
+            application/json:
+              example: {message: "Password diperbarui. Silakan login kembali."}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /api/admin/dashboard:
+    get:
+      tags: [Dashboard]
+      summary: Hitung jumlah data portfolio
+      security: [{SessionCookie: []}]
+      responses:
+        '200':
+          description: Jumlah data per bagian
+          content:
+            application/json:
+              example: {experiences: 3, projects: 5, certificates: 2, social_links: 3}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /api/admin/content:
+    get:
+      tags: [Konten website]
+      summary: Ambil konten hero dan footer (ID internal 1)
+      security: [{SessionCookie: []}]
+      responses:
+        '200':
+          description: Konten website
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/KontenWebsite'}
+              example: {id_konten: 1, nama_tampilan: "Nama Saya", label_profesi: "Web Developer", judul_utama: "Halo!", teks_utama_hero: "Saya membuat aplikasi", teks_pendukung: "", teks_hero_lainnya: "", deskripsi: "Tentang saya", teks_tombol_cta: "Hubungi saya", url_tujuan_cta: "https://example.com/contact", deskripsi_footer: "", teks_hak_cipta: "© 2026", teks_tambahan_footer: "", updated_at: "2026-11-12T08:00:00Z"}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+    put:
+      tags: [Konten website]
+      summary: Perbarui konten hero dan footer
+      security: [{SessionCookie: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/KontenWebsiteRequest'}
+            example: {deskripsi_footer: "Terima kasih sudah berkunjung", teks_hak_cipta: "© 2026 Nama Saya", teks_tambahan_footer: "Dibuat dengan Go", nama_tampilan: "Nama Saya", label_profesi: "Web Developer", judul_utama: "Halo, saya Nama", teks_utama_hero: "Saya membangun aplikasi web", teks_pendukung: "Selamat datang", teks_hero_lainnya: "", deskripsi: "Deskripsi portfolio", teks_tombol_cta: "Hubungi saya", url_tujuan_cta: "https://example.com/contact"}
+      responses:
+        '200': {description: Konten terbaru, content: {application/json: {schema: {$ref: '#/components/schemas/KontenWebsite'}}}}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /api/admin/profile:
+    get:
+      tags: [Profil]
+      summary: Ambil profil (ID internal 1)
+      security: [{SessionCookie: []}]
+      responses:
+        '200':
+          description: Profil admin
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Profil'}
+              example: {id_profil: 1, nama_lengkap: "Nama Saya", url_foto_profil: "/uploads/profile/foto.jpg", jabatan_profesional: "Web Developer", lokasi: "Jakarta", email: "nama@example.com", biografi: "Biografi", deskripsi_tentang_saya: "Tentang saya", updated_at: "2026-11-12T08:00:00Z"}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+    put:
+      tags: [Profil]
+      summary: Perbarui profil
+      security: [{SessionCookie: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ProfilRequest'}
+            example: {nama_lengkap: "Nama Saya", url_foto_profil: "/uploads/profile/foto.jpg", jabatan_profesional: "Web Developer", lokasi: "Jakarta", email: "nama@example.com", biografi: "Biografi singkat", deskripsi_tentang_saya: "Deskripsi tentang saya"}
+      responses:
+        '200': {description: Profil terbaru, content: {application/json: {schema: {$ref: '#/components/schemas/Profil'}}}}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /api/admin/experiences:
+    get:
+      tags: [Perjalanan]
+      summary: Daftar pengalaman dengan paginasi
+      security: [{SessionCookie: []}]
+      parameters:
+        - {$ref: '#/components/parameters/Page'}
+        - {$ref: '#/components/parameters/Limit'}
+      responses:
+        '200': {description: Daftar perjalanan, content: {application/json: {example: {data: [{id_perjalanan: 1, institusi: "Universitas Contoh", kategori: pendidikan, tanggal_mulai: "2022-09-01T00:00:00Z", tanggal_selesai: null, informasi_tambahan: "Teknik Informatika", deskripsi: "Belajar rekayasa perangkat lunak", sort_order: 1}], pagination: {page: 1, limit: 10, total_items: 1, total_pages: 1}}}}}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+    post:
+      tags: [Perjalanan]
+      summary: Tambah pengalaman
+      security: [{SessionCookie: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/PerjalananRequest'}
+            example: {institusi: "Universitas Contoh", kategori: pendidikan, tanggal_mulai: "2022-09-01", tanggal_selesai: "", informasi_tambahan: "Teknik Informatika", deskripsi: "Belajar software", sort_order: 1}
+      responses:
+        '201': {description: Data dibuat, content: {application/json: {schema: {$ref: '#/components/schemas/Perjalanan'}}}}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /api/admin/experiences/{id}:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get:
+      tags: [Perjalanan]
+      summary: Ambil pengalaman berdasarkan ID
+      security: [{SessionCookie: []}]
+      responses:
+        '200': {description: Data perjalanan, content: {application/json: {schema: {$ref: '#/components/schemas/Perjalanan'}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      tags: [Perjalanan]
+      summary: Ubah pengalaman
+      security: [{SessionCookie: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/PerjalananRequest'}
+            example: {institusi: "Universitas Contoh", kategori: pendidikan, tanggal_mulai: "2022-09-01", tanggal_selesai: "", informasi_tambahan: "Teknik Informatika", deskripsi: "Deskripsi terbaru", sort_order: 1}
+      responses:
+        '200': {description: Data diperbarui, content: {application/json: {schema: {$ref: '#/components/schemas/Perjalanan'}}}}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    delete:
+      tags: [Perjalanan]
+      summary: Hapus pengalaman
+      security: [{SessionCookie: []}]
+      responses:
+        '204': {description: Data dihapus}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/admin/projects:
+    get:
+      tags: [Proyek]
+      summary: Daftar proyek; urut prioritas lalu tanggal
+      security: [{SessionCookie: []}]
+      parameters:
+        - {$ref: '#/components/parameters/Page'}
+        - {$ref: '#/components/parameters/Limit'}
+      responses:
+        '200': {description: Daftar proyek, content: {application/json: {example: {data: [{id_proyek: 1, judul_proyek: "Portfolio API", kategori: Website, status: konsep, prioritas: 1, tanggal: "2026-01-15T00:00:00Z"}], pagination: {page: 1, limit: 10, total_items: 1, total_pages: 1}}}}}
+    post:
+      tags: [Proyek]
+      summary: Tambah proyek
+      security: [{SessionCookie: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ProyekRequest'}
+            example: {judul_proyek: "Portfolio API", url_sampul_proyek: "/uploads/project/api.png", kategori: Website, deskripsi: "API portfolio dengan Go", tanggal: "2026-01-15", url_demo: "https://example.com", url_github: "https://github.com/example/repo", status: konsep, prioritas: 1}
+      responses:
+        '201': {description: Proyek dibuat, content: {application/json: {schema: {$ref: '#/components/schemas/Proyek'}}}}
+        '400': {$ref: '#/components/responses/BadRequest'}
+  /api/admin/projects/{id}:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get:
+      tags: [Proyek]
+      summary: Ambil proyek beserta teknologinya
+      security: [{SessionCookie: []}]
+      responses:
+        '200': {description: Proyek dan teknologi, content: {application/json: {example: {project: {id_proyek: 1, judul_proyek: "Portfolio API"}, technologies: []}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      tags: [Proyek]
+      summary: Ubah proyek
+      security: [{SessionCookie: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/ProyekRequest'}
+            example: {judul_proyek: "Portfolio API v2", url_sampul_proyek: "/uploads/project/api.png", kategori: Website, deskripsi: "Deskripsi terbaru", tanggal: "2026-01-15", url_demo: "https://example.com", url_github: "https://github.com/example/repo", status: on-going, prioritas: 1}
+      responses:
+        '200': {description: Proyek diperbarui}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    delete:
+      tags: [Proyek]
+      summary: Hapus proyek beserta relasi teknologinya
+      security: [{SessionCookie: []}]
+      responses:
+        '204': {description: Proyek dihapus}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/admin/projects/{projectId}/technologies:
+    parameters: [{$ref: '#/components/parameters/ProjectId'}]
+    get:
+      tags: [Proyek]
+      summary: Daftar teknologi proyek
+      security: [{SessionCookie: []}]
+      responses:
+        '200': {description: Relasi teknologi proyek, content: {application/json: {example: {data: [{id_teknologi_proyek: 1, id_proyek: 1, id_teknologi: 1, kategori: "Backend", teknologi: {id_teknologi: 1, nama_teknologi: Go}}]}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
+    post:
+      tags: [Proyek]
+      summary: Tambahkan teknologi ke proyek
+      security: [{SessionCookie: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/TeknologiProyekRequest'}
+            example: {id_teknologi: 1, kategori: Backend}
+      responses:
+        '201': {description: Relasi dibuat}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/admin/projects/{projectId}/technologies/{technologyId}:
+    parameters:
+      - {$ref: '#/components/parameters/ProjectId'}
+      - {$ref: '#/components/parameters/TechnologyId'}
+    put:
+      tags: [Proyek]
+      summary: Ubah kategori teknologi di proyek
+      security: [{SessionCookie: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {type: object, required: [kategori], properties: {kategori: {type: string, example: Backend}}}
+            example: {kategori: Backend}
+      responses:
+        '200': {description: Relasi diperbarui}
+        '404': {$ref: '#/components/responses/NotFound'}
+    delete:
+      tags: [Proyek]
+      summary: Lepas teknologi dari proyek
+      security: [{SessionCookie: []}]
+      responses:
+        '204': {description: Relasi dihapus}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/admin/certificates:
+    get:
+      tags: [Sertifikasi]
+      summary: Daftar sertifikasi
+      security: [{SessionCookie: []}]
+      parameters: [{$ref: '#/components/parameters/Page'}, {$ref: '#/components/parameters/Limit'}]
+      responses:
+        '200': {description: Daftar sertifikasi, content: {application/json: {example: {data: [{id_sertifikasi: 1, nama_sertifikat: "Go Dasar", penerbit: "Lembaga Contoh", tanggal_terbit: "2025-05-01T00:00:00Z", tanggal_kadaluarsa: null, nomor_sertifikat: "ABC-123", url_sertifikat: "https://example.com/certificate", deskripsi: "", sort_order: 1}], pagination: {page: 1, limit: 10, total_items: 1, total_pages: 1}}}}}
+    post:
+      tags: [Sertifikasi]
+      summary: Tambah sertifikasi
+      security: [{SessionCookie: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/SertifikasiRequest'}
+            example: {nama_sertifikat: "Go Dasar", penerbit: "Lembaga Contoh", tanggal_terbit: "2025-05-01", tanggal_kadaluarsa: "", nomor_sertifikat: "ABC-123", url_sertifikat: "https://example.com/certificate", deskripsi: "", sort_order: 1}
+      responses:
+        '201': {description: Sertifikasi dibuat}
+        '400': {$ref: '#/components/responses/BadRequest'}
+  /api/admin/certificates/{id}:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get:
+      tags: [Sertifikasi]
+      summary: Ambil sertifikasi
+      security: [{SessionCookie: []}]
+      responses:
+        '200': {description: Sertifikasi ditemukan, content: {application/json: {schema: {$ref: '#/components/schemas/Sertifikasi'}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      tags: [Sertifikasi]
+      summary: Ubah sertifikasi
+      security: [{SessionCookie: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/SertifikasiRequest'}
+            example: {nama_sertifikat: "Go Lanjutan", penerbit: "Lembaga Contoh", tanggal_terbit: "2025-05-01", tanggal_kadaluarsa: "", nomor_sertifikat: "ABC-123", url_sertifikat: "https://example.com/certificate", deskripsi: "Diperbarui", sort_order: 1}
+      responses:
+        '200': {description: Sertifikasi diperbarui}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    delete:
+      tags: [Sertifikasi]
+      summary: Hapus sertifikasi
+      security: [{SessionCookie: []}]
+      responses:
+        '204': {description: Sertifikasi dihapus}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/admin/social-links:
+    get:
+      tags: [Media sosial]
+      summary: Daftar tautan media sosial
+      security: [{SessionCookie: []}]
+      responses:
+        '200': {description: Media sosial, content: {application/json: {example: {data: [{id_media_sosial: 1, nama_platform: GitHub, nama_akun: username, id_ikon: 2, url_tujuan: "https://github.com/username", sort_order: 1, ikon: {id_ikon: 2, nama_ikon: GitHub, url_ikon: "/uploads/icon/github.png", kategori_ikon: media_sosial}}]}}}}
+    post:
+      tags: [Media sosial]
+      summary: Tambah tautan sosial
+      security: [{SessionCookie: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/MediaSosialRequest'}
+            example: {nama_platform: GitHub, nama_akun: username, id_ikon: 2, url_tujuan: "https://github.com/username", sort_order: 1}
+      responses:
+        '201': {description: Tautan dibuat}
+        '400': {$ref: '#/components/responses/BadRequest'}
+  /api/admin/social-links/{id}:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get:
+      tags: [Media sosial]
+      summary: Ambil tautan sosial
+      security: [{SessionCookie: []}]
+      responses:
+        '200': {description: Tautan ditemukan, content: {application/json: {schema: {$ref: '#/components/schemas/MediaSosial'}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      tags: [Media sosial]
+      summary: Ubah tautan sosial
+      security: [{SessionCookie: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/MediaSosialRequest'}
+            example: {nama_platform: GitHub, nama_akun: akun-baru, id_ikon: 2, url_tujuan: "https://github.com/akun-baru", sort_order: 1}
+      responses:
+        '200': {description: Tautan diperbarui}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    delete:
+      tags: [Media sosial]
+      summary: Hapus tautan sosial
+      security: [{SessionCookie: []}]
+      responses:
+        '204': {description: Tautan dihapus}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/admin/icons:
+    get:
+      tags: [Ikon]
+      summary: Daftar ikon; filter kategori opsional
+      security: [{SessionCookie: []}]
+      parameters:
+        - name: category
+          in: query
+          schema: {type: string, enum: [media_sosial, teknologi]}
+          example: teknologi
+      responses:
+        '200': {description: Daftar ikon, content: {application/json: {example: {data: [{id_ikon: 1, nama_ikon: Go, url_ikon: "/uploads/icon/go.png", kategori_ikon: teknologi}]}}}}
+    post:
+      tags: [Ikon]
+      summary: Tambah ikon
+      security: [{SessionCookie: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/IkonRequest'}
+            example: {nama_ikon: Go, url_ikon: "/uploads/icon/go.png", kategori_ikon: teknologi}
+      responses:
+        '201': {description: Ikon dibuat}
+        '400': {$ref: '#/components/responses/BadRequest'}
+  /api/admin/icons/{id}:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get:
+      tags: [Ikon]
+      summary: Ambil ikon
+      security: [{SessionCookie: []}]
+      responses:
+        '200': {description: Ikon ditemukan, content: {application/json: {schema: {$ref: '#/components/schemas/Ikon'}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      tags: [Ikon]
+      summary: Ubah ikon
+      security: [{SessionCookie: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/IkonRequest'}
+            example: {nama_ikon: Go, url_ikon: "/uploads/icon/go-baru.png", kategori_ikon: teknologi}
+      responses:
+        '200': {description: Ikon diperbarui}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+    delete:
+      tags: [Ikon]
+      summary: Hapus ikon yang tidak sedang dipakai
+      security: [{SessionCookie: []}]
+      responses:
+        '204': {description: Ikon dihapus}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {description: Ikon masih direferensikan}
+  /api/admin/technologies:
+    get:
+      tags: [Teknologi]
+      summary: Daftar teknologi
+      security: [{SessionCookie: []}]
+      responses:
+        '200': {description: Daftar teknologi, content: {application/json: {example: {data: [{id_teknologi: 1, nama_teknologi: Go, id_ikon: 1, ikon: {id_ikon: 1, nama_ikon: Go, kategori_ikon: teknologi}}]}}}}
+    post:
+      tags: [Teknologi]
+      summary: Tambah teknologi
+      security: [{SessionCookie: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/TeknologiRequest'}
+            example: {nama_teknologi: Go, id_ikon: 1}
+      responses:
+        '201': {description: Teknologi dibuat}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '409': {description: Nama teknologi sudah digunakan}
+  /api/admin/technologies/{id}:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get:
+      tags: [Teknologi]
+      summary: Ambil teknologi
+      security: [{SessionCookie: []}]
+      responses:
+        '200': {description: Teknologi ditemukan, content: {application/json: {schema: {$ref: '#/components/schemas/Teknologi'}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
+    put:
+      tags: [Teknologi]
+      summary: Ubah teknologi
+      security: [{SessionCookie: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/TeknologiRequest'}
+            example: {nama_teknologi: Go, id_ikon: 1}
+      responses:
+        '200': {description: Teknologi diperbarui}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {description: Nama teknologi sudah digunakan}
+    delete:
+      tags: [Teknologi]
+      summary: Hapus teknologi yang tidak terhubung ke profil/proyek
+      security: [{SessionCookie: []}]
+      responses:
+        '204': {description: Teknologi dihapus}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {description: Teknologi masih digunakan}
+  /api/admin/profile/technologies:
+    get:
+      tags: [Teknologi profil]
+      summary: Daftar teknologi unggulan di profil
+      security: [{SessionCookie: []}]
+      responses:
+        '200': {description: Daftar teknologi profil, content: {application/json: {example: {data: [{id_teknologi_profil: 1, id_teknologi: 1, prioritas: 1, teknologi: {id_teknologi: 1, nama_teknologi: Go}}]}}}}
+    post:
+      tags: [Teknologi profil]
+      summary: Tambahkan teknologi unggulan
+      security: [{SessionCookie: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/TeknologiProfilRequest'}
+            example: {id_teknologi: 1, prioritas: 1}
+      responses:
+        '201': {description: Teknologi profil dibuat}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/admin/profile/technologies/{technologyId}:
+    parameters: [{$ref: '#/components/parameters/TechnologyId'}]
+    put:
+      tags: [Teknologi profil]
+      summary: Ubah prioritas teknologi profil
+      security: [{SessionCookie: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {type: object, properties: {prioritas: {type: integer}}, example: {prioritas: 2}}
+            example: {prioritas: 2}
+      responses:
+        '200': {description: Prioritas diperbarui}
+        '404': {$ref: '#/components/responses/NotFound'}
+    delete:
+      tags: [Teknologi profil]
+      summary: Hapus teknologi dari profil
+      security: [{SessionCookie: []}]
+      responses:
+        '204': {description: Teknologi profil dihapus}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/admin/uploads:
+    post:
+      tags: [Unggah]
+      summary: Unggah gambar untuk profil, proyek, sertifikat, atau ikon
+      security: [{SessionCookie: []}]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [purpose, file]
+              properties:
+                purpose: {type: string, enum: [profile, project, certificate, icon], example: project}
+                file: {type: string, format: binary}
+      responses:
+        '201':
+          description: Gambar tersimpan
+          content:
+            application/json:
+              example: {url: "/uploads/project/abc123.png", mime_type: image/png, size: 2048, filename: abc123.png}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+
+components:
+  securitySchemes:
+    SessionCookie:
+      type: apiKey
+      in: cookie
+      name: portfolio_session
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema: {type: integer, minimum: 1}
+      example: 1
+    ProjectId:
+      name: projectId
+      in: path
+      required: true
+      schema: {type: integer, minimum: 1}
+      example: 1
+    TechnologyId:
+      name: technologyId
+      in: path
+      required: true
+      schema: {type: integer, minimum: 1}
+      example: 1
+    Page:
+      name: page
+      in: query
+      schema: {type: integer, minimum: 1, default: 1}
+      example: 1
+    Limit:
+      name: limit
+      in: query
+      schema: {type: integer, minimum: 1, maximum: 50, default: 10}
+      example: 10
+  responses:
+    BadRequest:
+      description: Request tidak valid
+      content:
+        application/json:
+          example: {error: "Body JSON tidak valid"}
+    Unauthorized:
+      description: Sesi belum login atau sudah berakhir
+      content:
+        application/json:
+          example: {error: "Sesi tidak valid"}
+    NotFound:
+      description: Data tidak ditemukan
+      content:
+        application/json:
+          example: {error: "Data tidak ditemukan"}
+    ServerError:
+      description: Kesalahan server
+      content:
+        application/json:
+          example: {error: "Terjadi kesalahan pada server"}
+  schemas:
+    Error:
+      type: object
+      properties: {error: {type: string, example: "Terjadi kesalahan pada server"}}
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username: {type: string, example: admin}
+        password: {type: string, format: password, example: "PasswordKuat123!"}
+    PasswordRequest:
+      type: object
+      required: [current_password, new_password]
+      properties:
+        current_password: {type: string, format: password, example: "PasswordLama123!"}
+        new_password: {type: string, format: password, minLength: 12, maxLength: 72, example: "PasswordBaru456!"}
+    KontenWebsiteRequest:
+      type: object
+      required: [nama_tampilan, judul_utama]
+      properties:
+        deskripsi_footer: {type: string}
+        teks_hak_cipta: {type: string}
+        teks_tambahan_footer: {type: string}
+        nama_tampilan: {type: string, example: "Nama Saya"}
+        label_profesi: {type: string}
+        judul_utama: {type: string, example: "Halo, saya Nama"}
+        teks_utama_hero: {type: string}
+        teks_pendukung: {type: string}
+        teks_hero_lainnya: {type: string}
+        deskripsi: {type: string}
+        teks_tombol_cta: {type: string}
+        url_tujuan_cta: {type: string, format: uri, example: "https://example.com/contact"}
+    KontenWebsite:
+      allOf:
+        - {$ref: '#/components/schemas/KontenWebsiteRequest'}
+        - type: object
+          properties:
+            id_konten: {type: integer, example: 1}
+            updated_at: {type: string, format: date-time}
+    ProfilRequest:
+      type: object
+      required: [nama_lengkap]
+      properties:
+        nama_lengkap: {type: string, example: "Nama Saya"}
+        url_foto_profil: {type: string, example: "/uploads/profile/foto.jpg"}
+        jabatan_profesional: {type: string}
+        lokasi: {type: string}
+        email: {type: string, format: email}
+        biografi: {type: string}
+        deskripsi_tentang_saya: {type: string}
+    Profil:
+      allOf:
+        - {$ref: '#/components/schemas/ProfilRequest'}
+        - type: object
+          properties:
+            id_profil: {type: integer, example: 1}
+            updated_at: {type: string, format: date-time}
+    PerjalananRequest:
+      type: object
+      required: [institusi, kategori, tanggal_mulai]
+      properties:
+        institusi: {type: string, example: "Universitas Contoh"}
+        kategori: {type: string, enum: [pekerjaan, magang, pendidikan, pelatihan]}
+        tanggal_mulai: {type: string, format: date, example: "2022-09-01"}
+        tanggal_selesai: {type: string, format: date, nullable: true, example: "2025-06-30"}
+        informasi_tambahan: {type: string}
+        deskripsi: {type: string}
+        sort_order: {type: integer, example: 1}
+    Perjalanan:
+      allOf:
+        - {$ref: '#/components/schemas/PerjalananRequest'}
+        - type: object
+          properties:
+            id_perjalanan: {type: integer, example: 1}
+            tanggal_mulai: {type: string, format: date-time}
+            tanggal_selesai: {type: string, format: date-time, nullable: true}
+            created_at: {type: string, format: date-time}
+            updated_at: {type: string, format: date-time}
+    ProyekRequest:
+      type: object
+      required: [judul_proyek, kategori, status]
+      properties:
+        judul_proyek: {type: string, example: "Portfolio API"}
+        url_sampul_proyek: {type: string, example: "/uploads/project/api.png"}
+        kategori: {type: string, enum: [Mobile, Website, "UI/UX", "Machine Learning", "Artificial Intelligence", Web3, "Game Development"]}
+        deskripsi: {type: string}
+        tanggal: {type: string, format: date, nullable: true}
+        url_demo: {type: string, format: uri}
+        url_github: {type: string, format: uri}
+        status: {type: string, enum: [konsep, on-going, finished]}
+        prioritas: {type: integer, example: 1}
+    Proyek:
+      allOf:
+        - {$ref: '#/components/schemas/ProyekRequest'}
+        - type: object
+          properties:
+            id_proyek: {type: integer, example: 1}
+            tanggal: {type: string, format: date-time, nullable: true}
+            created_at: {type: string, format: date-time}
+            updated_at: {type: string, format: date-time}
+    SertifikasiRequest:
+      type: object
+      required: [nama_sertifikat, penerbit]
+      properties:
+        nama_sertifikat: {type: string, example: "Go Dasar"}
+        penerbit: {type: string, example: "Lembaga Contoh"}
+        tanggal_terbit: {type: string, format: date, nullable: true}
+        tanggal_kadaluarsa: {type: string, format: date, nullable: true}
+        nomor_sertifikat: {type: string}
+        url_sertifikat: {type: string, format: uri}
+        deskripsi: {type: string}
+        sort_order: {type: integer}
+    Sertifikasi:
+      allOf:
+        - {$ref: '#/components/schemas/SertifikasiRequest'}
+        - type: object
+          properties:
+            id_sertifikasi: {type: integer, example: 1}
+            tanggal_terbit: {type: string, format: date-time, nullable: true}
+            tanggal_kadaluarsa: {type: string, format: date-time, nullable: true}
+            created_at: {type: string, format: date-time}
+            updated_at: {type: string, format: date-time}
+    MediaSosialRequest:
+      type: object
+      required: [nama_platform, nama_akun, url_tujuan]
+      properties:
+        nama_platform: {type: string, example: GitHub}
+        nama_akun: {type: string, example: username}
+        id_ikon: {type: integer, nullable: true, example: 1}
+        url_tujuan: {type: string, format: uri, example: "https://github.com/username"}
+        sort_order: {type: integer, example: 1}
+    MediaSosial:
+      allOf:
+        - {$ref: '#/components/schemas/MediaSosialRequest'}
+        - type: object
+          properties:
+            id_media_sosial: {type: integer}
+            ikon: {$ref: '#/components/schemas/Ikon'}
+            created_at: {type: string, format: date-time}
+            updated_at: {type: string, format: date-time}
+    IkonRequest:
+      type: object
+      required: [nama_ikon, url_ikon, kategori_ikon]
+      properties:
+        nama_ikon: {type: string, example: Go}
+        url_ikon: {type: string, example: "/uploads/icon/go.png"}
+        kategori_ikon: {type: string, enum: [media_sosial, teknologi]}
+    Ikon:
+      allOf:
+        - {$ref: '#/components/schemas/IkonRequest'}
+        - type: object
+          properties:
+            id_ikon: {type: integer}
+            created_at: {type: string, format: date-time}
+            updated_at: {type: string, format: date-time}
+    TeknologiRequest:
+      type: object
+      required: [nama_teknologi]
+      properties:
+        nama_teknologi: {type: string, example: Go}
+        id_ikon: {type: integer, nullable: true, example: 1}
+    Teknologi:
+      allOf:
+        - {$ref: '#/components/schemas/TeknologiRequest'}
+        - type: object
+          properties:
+            id_teknologi: {type: integer}
+            ikon: {$ref: '#/components/schemas/Ikon'}
+            created_at: {type: string, format: date-time}
+            updated_at: {type: string, format: date-time}
+    TeknologiProyekRequest:
+      type: object
+      required: [id_teknologi, kategori]
+      properties:
+        id_teknologi: {type: integer, example: 1}
+        kategori: {type: string, example: Backend}
+    TeknologiProfilRequest:
+      type: object
+      required: [id_teknologi]
+      properties:
+        id_teknologi: {type: integer, example: 1}
+        prioritas: {type: integer, example: 1}
