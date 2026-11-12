@@ -13,8 +13,8 @@ func mediaSosialDariInput(db *gorm.DB, in models.PermintaanMediaSosial) (models.
 	if in.NamaPlatform == "" || in.NamaAkun == "" {
 		return models.MediaSosial{}, fiber.NewError(400, "Nama platform dan nama akun wajib diisi")
 	}
-	if !validURL(in.URLTujuan) {
-		return models.MediaSosial{}, fiber.NewError(400, "URL tujuan harus HTTP atau HTTPS")
+	if !validLink(in.URLTujuan) {
+		return models.MediaSosial{}, fiber.NewError(400, "URL tujuan harus berupa https://..., #bagian, /path, atau mailto:email")
 	}
 	if in.IDIkon != nil {
 		var icon models.Ikon

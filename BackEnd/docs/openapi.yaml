@@ -703,7 +703,7 @@ components:
         teks_hero_lainnya: {type: string}
         deskripsi: {type: string}
         teks_tombol_cta: {type: string}
-        url_tujuan_cta: {type: string, format: uri, example: "https://example.com/contact"}
+        url_tujuan_cta: {type: string, description: "https://..., #bagian, /path, atau mailto:email", example: "https://example.com/contact"}
     KontenWebsite:
       allOf:
         - {$ref: '#/components/schemas/KontenWebsiteRequest'}
@@ -801,7 +801,7 @@ components:
         nama_platform: {type: string, example: GitHub}
         nama_akun: {type: string, example: username}
         id_ikon: {type: integer, nullable: true, example: 1}
-        url_tujuan: {type: string, format: uri, example: "https://github.com/username"}
+        url_tujuan: {type: string, description: "https://..., #bagian, /path (mis. /cv.pdf), atau mailto:email", example: "https://github.com/username"}
         sort_order: {type: integer, example: 1}
     MediaSosial:
       allOf:

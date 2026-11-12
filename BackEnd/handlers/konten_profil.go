@@ -33,9 +33,9 @@ func (h *Handler) UpdateContent(c *fiber.Ctx) error {
 			"error": "Nama tampilan dan judul utama wajib diisi",
 		})
 	}
-	if !validURL(input.URLTujuanCTA) {
+	if !validLink(input.URLTujuanCTA) {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "URL CTA harus berupa URL HTTP atau HTTPS yang valid",
+			"error": "URL CTA harus berupa https://..., #bagian, /path, atau mailto:email",
 		})
 	}
 	updates := map[string]any{

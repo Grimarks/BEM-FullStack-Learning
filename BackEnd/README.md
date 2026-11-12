@@ -17,7 +17,7 @@ Backend belajar untuk portfolio pribadi. Memakai Fiber v2, GORM, dan MySQL. Buat
    CREATE DATABASE bem_portfolio CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
    ```
 
-2. Dari folder `BackEnd`, salin `.env.example` menjadi `.env`:
+2. Dari folder `BackEnd`, salin `.env` menjadi `.env`:
 
    ```powershell
    Copy-Item .env.example .env
