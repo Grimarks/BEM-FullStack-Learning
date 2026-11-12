@@ -92,15 +92,20 @@ func (h *Handler) UpdateTeknologi(c *fiber.Ctx) error {
 			"error": err.Error(),
 		})
 	}
-	res := h.DB.Model(&models.Teknologi{}).Where("id_teknologi = ?", id).Updates(map[string]any{"nama_teknologi": item.NamaTeknologi, "id_ikon": item.IDIkon})
-	if res.Error != nil {
-		return c.Status(fiber.StatusConflict).JSON(fiber.Map{
-			"error": "Nama teknologi sudah digunakan",
+	var teknologi models.Teknologi
+	if err := h.DB.First(&teknologi, "id_teknologi = ?", id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Teknologi tidak ditemukan"})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Terjadi kesalahan pada server",
 		})
 	}
-	if res.RowsAffected == 0 {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "Teknologi tidak ditemukan",
+	teknologi.NamaTeknologi = item.NamaTeknologi
+	teknologi.IDIkon = item.IDIkon
+	if err := h.DB.Save(&teknologi).Error; err != nil {
+		return c.Status(fiber.StatusConflict).JSON(fiber.Map{
+			"error": "Nama teknologi sudah digunakan",
 		})
 	}
 	return h.GetTeknologi(c)
@@ -238,15 +243,19 @@ func (h *Handler) UpdateProjectTechnology(c *fiber.Ctx) error {
 			"error": "Kategori wajib diisi",
 		})
 	}
-	res := h.DB.Model(&models.TeknologiProyek{}).Where("id_proyek = ? AND id_teknologi = ?", projectID, technologyID).Update("kategori", category)
-	if res.Error != nil {
+	var relasi models.TeknologiProyek
+	if err := h.DB.Where("id_proyek = ? AND id_teknologi = ?", projectID, technologyID).First(&relasi).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Relasi teknologi proyek tidak ditemukan"})
+		}
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Terjadi kesalahan pada server",
 		})
 	}
-	if res.RowsAffected == 0 {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "Relasi teknologi proyek tidak ditemukan",
+	relasi.Kategori = category
+	if err := h.DB.Save(&relasi).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Terjadi kesalahan pada server",
 		})
 	}
 	return c.JSON(fiber.Map{
@@ -332,15 +341,19 @@ func (h *Handler) UpdateProfileTechnology(c *fiber.Ctx) error {
 			"error": "Body JSON tidak valid",
 		})
 	}
-	res := h.DB.Model(&models.TeknologiProfil{}).Where("id_teknologi = ?", id).Update("prioritas", input.Prioritas)
-	if res.Error != nil {
+	var teknologiProfil models.TeknologiProfil
+	if err := h.DB.Where("id_teknologi = ?", id).First(&teknologiProfil).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Teknologi profil tidak ditemukan"})
+		}
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Terjadi kesalahan pada server",
 		})
 	}
-	if res.RowsAffected == 0 {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "Teknologi profil tidak ditemukan",
+	teknologiProfil.Prioritas = input.Prioritas
+	if err := h.DB.Save(&teknologiProfil).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Terjadi kesalahan pada server",
 		})
 	}
 	return c.JSON(fiber.Map{

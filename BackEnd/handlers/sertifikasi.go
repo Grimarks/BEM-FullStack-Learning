@@ -114,19 +114,26 @@ func (h *Handler) UpdateCertificate(c *fiber.Ctx) error {
 			"error": err.Error(),
 		})
 	}
-	result := h.DB.Model(&models.Sertifikasi{}).Where("id_sertifikasi = ?", id).Updates(map[string]any{
-		"nama_sertifikat": item.NamaSertifikat, "penerbit": item.Penerbit, "tanggal_terbit": item.TanggalTerbit,
-		"tanggal_kadaluarsa": item.TanggalKadaluarsa, "nomor_sertifikat": item.NomorSertifikat,
-		"url_sertifikat": item.URLSertifikat, "deskripsi": item.Deskripsi, "sort_order": item.UrutanTampil,
-	})
-	if result.Error != nil {
+	var sertifikasi models.Sertifikasi
+	if err := h.DB.First(&sertifikasi, "id_sertifikasi = ?", id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Sertifikasi tidak ditemukan"})
+		}
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Terjadi kesalahan pada server",
 		})
 	}
-	if result.RowsAffected == 0 {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "Sertifikasi tidak ditemukan",
+	sertifikasi.NamaSertifikat = item.NamaSertifikat
+	sertifikasi.Penerbit = item.Penerbit
+	sertifikasi.TanggalTerbit = item.TanggalTerbit
+	sertifikasi.TanggalKadaluarsa = item.TanggalKadaluarsa
+	sertifikasi.NomorSertifikat = item.NomorSertifikat
+	sertifikasi.URLSertifikat = item.URLSertifikat
+	sertifikasi.Deskripsi = item.Deskripsi
+	sertifikasi.UrutanTampil = item.UrutanTampil
+	if err := h.DB.Save(&sertifikasi).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Terjadi kesalahan pada server",
 		})
 	}
 	return h.GetCertificate(c)

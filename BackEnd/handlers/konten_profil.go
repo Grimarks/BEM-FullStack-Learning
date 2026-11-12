@@ -38,15 +38,25 @@ func (h *Handler) UpdateContent(c *fiber.Ctx) error {
 			"error": "URL CTA harus berupa URL HTTP atau HTTPS yang valid",
 		})
 	}
-	updates := map[string]any{
-		"deskripsi_footer": input.DeskripsiFooter, "teks_hak_cipta": input.TeksHakCipta,
-		"teks_tambahan_footer": input.TeksTambahanFooter, "nama_tampilan": input.NamaTampilan,
-		"label_profesi": input.LabelProfesi, "judul_utama": input.JudulUtama,
-		"teks_utama_hero": input.TeksUtamaHero, "teks_pendukung": input.TeksPendukung,
-		"teks_hero_lainnya": input.TeksHeroLainnya, "deskripsi": input.Deskripsi,
-		"teks_tombol_cta": input.TeksTombolCTA, "url_tujuan_cta": input.URLTujuanCTA,
+	var konten models.KontenWebsite
+	if err := h.DB.First(&konten, 1).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Terjadi kesalahan pada server",
+		})
 	}
-	if err := h.DB.Model(&models.KontenWebsite{}).Where("id_konten = ?", 1).Updates(updates).Error; err != nil {
+	konten.DeskripsiFooter = input.DeskripsiFooter
+	konten.TeksHakCipta = input.TeksHakCipta
+	konten.TeksTambahanFooter = input.TeksTambahanFooter
+	konten.NamaTampilan = input.NamaTampilan
+	konten.LabelProfesi = input.LabelProfesi
+	konten.JudulUtama = input.JudulUtama
+	konten.TeksUtamaHero = input.TeksUtamaHero
+	konten.TeksPendukung = input.TeksPendukung
+	konten.TeksHeroLainnya = input.TeksHeroLainnya
+	konten.Deskripsi = input.Deskripsi
+	konten.TeksTombolCTA = input.TeksTombolCTA
+	konten.URLTujuanCTA = input.URLTujuanCTA
+	if err := h.DB.Save(&konten).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Terjadi kesalahan pada server",
 		})
@@ -101,13 +111,20 @@ func (h *Handler) UpdateProfile(c *fiber.Ctx) error {
 			})
 		}
 	}
-	updates := map[string]any{
-		"nama_lengkap": input.NamaLengkap, "url_foto_profil": input.URLFotoProfil,
-		"jabatan_profesional": input.JabatanProfesional, "lokasi": input.Lokasi,
-		"email": input.Email, "biografi": input.Biografi,
-		"deskripsi_tentang_saya": input.DeskripsiTentangSaya,
+	var profil models.Profil
+	if err := h.DB.First(&profil, 1).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Terjadi kesalahan pada server",
+		})
 	}
-	if err := h.DB.Model(&models.Profil{}).Where("id_profil = ?", 1).Updates(updates).Error; err != nil {
+	profil.NamaLengkap = input.NamaLengkap
+	profil.URLFotoProfil = input.URLFotoProfil
+	profil.JabatanProfesional = input.JabatanProfesional
+	profil.Lokasi = input.Lokasi
+	profil.Email = input.Email
+	profil.Biografi = input.Biografi
+	profil.DeskripsiTentangSaya = input.DeskripsiTentangSaya
+	if err := h.DB.Save(&profil).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Terjadi kesalahan pada server",
 		})

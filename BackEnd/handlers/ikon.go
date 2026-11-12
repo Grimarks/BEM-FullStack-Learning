@@ -118,15 +118,21 @@ func (h *Handler) UpdateIkon(c *fiber.Ctx) error {
 			"error": err.Error(),
 		})
 	}
-	res := h.DB.Model(&models.Ikon{}).Where("id_ikon = ?", id).Updates(map[string]any{"nama_ikon": item.NamaIkon, "url_ikon": item.URLIkon, "kategori_ikon": item.Kategori})
-	if res.Error != nil {
+	var ikon models.Ikon
+	if err := h.DB.First(&ikon, "id_ikon = ?", id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Ikon tidak ditemukan"})
+		}
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Terjadi kesalahan pada server",
 		})
 	}
-	if res.RowsAffected == 0 {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "Ikon tidak ditemukan",
+	ikon.NamaIkon = item.NamaIkon
+	ikon.URLIkon = item.URLIkon
+	ikon.Kategori = item.Kategori
+	if err := h.DB.Save(&ikon).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Terjadi kesalahan pada server",
 		})
 	}
 	return h.GetIkon(c)

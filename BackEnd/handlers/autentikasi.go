@@ -42,7 +42,9 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 	sum := sha256.Sum256([]byte(token))
 	tokenHash := hex.EncodeToString(sum[:])
 	expires := time.Now().Add(time.Duration(h.Cfg.SessionHours) * time.Hour)
-	if err := h.DB.Model(&models.Autentikasi{}).Where("id_auth = ?", 1).Updates(map[string]any{"token_hash": tokenHash, "expires_at": expires}).Error; err != nil {
+	account.HashToken = tokenHash
+	account.WaktuKadaluarsa = &expires
+	if err := h.DB.Save(&account).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Terjadi kesalahan pada server",
 		})
@@ -56,7 +58,15 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 }
 
 func (h *Handler) Logout(c *fiber.Ctx) error {
-	if err := h.DB.Model(&models.Autentikasi{}).Where("id_auth = ?", 1).Updates(map[string]any{"token_hash": "", "expires_at": nil}).Error; err != nil {
+	var account models.Autentikasi
+	if err := h.DB.First(&account, 1).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Terjadi kesalahan pada server",
+		})
+	}
+	account.HashToken = ""
+	account.WaktuKadaluarsa = nil
+	if err := h.DB.Save(&account).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Terjadi kesalahan pada server",
 		})
@@ -104,7 +114,10 @@ func (h *Handler) ChangePassword(c *fiber.Ctx) error {
 			"error": "Terjadi kesalahan pada server",
 		})
 	}
-	if err := h.DB.Model(&models.Autentikasi{}).Where("id_auth = ?", 1).Updates(map[string]any{"password_hash": string(hash), "token_hash": "", "expires_at": nil}).Error; err != nil {
+	account.HashKataSandi = string(hash)
+	account.HashToken = ""
+	account.WaktuKadaluarsa = nil
+	if err := h.DB.Save(&account).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Terjadi kesalahan pada server",
 		})
