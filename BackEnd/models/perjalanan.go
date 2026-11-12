@@ -19,7 +19,7 @@ type Perjalanan struct {
 
 func (Perjalanan) TableName() string { return "perjalanan" }
 
-type PermintaanPerjalanan struct {
+type PerjalananRequest struct {
 	Institusi         string `json:"institusi"`
 	Kategori          string `json:"kategori"`
 	TanggalMulai      string `json:"tanggal_mulai"`

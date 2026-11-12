@@ -16,7 +16,7 @@ type MediaSosial struct {
 
 func (MediaSosial) TableName() string { return "media_sosial" }
 
-type PermintaanMediaSosial struct {
+type MediaSosialRequest struct {
 	NamaPlatform string `json:"nama_platform"`
 	NamaAkun     string `json:"nama_akun"`
 	IDIkon       *uint  `json:"id_ikon"`

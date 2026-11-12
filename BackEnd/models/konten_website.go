@@ -21,7 +21,7 @@ type KontenWebsite struct {
 
 func (KontenWebsite) TableName() string { return "website_content" }
 
-type PermintaanPerbaruiKontenWebsite struct {
+type KontenWebsiteRequest struct {
 	DeskripsiFooter    string `json:"deskripsi_footer"`
 	TeksHakCipta       string `json:"teks_hak_cipta"`
 	TeksTambahanFooter string `json:"teks_tambahan_footer"`

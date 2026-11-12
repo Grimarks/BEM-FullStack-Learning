@@ -10,7 +10,7 @@ import (
 
 var projectCategories = []string{"Mobile", "Website", "UI/UX", "Machine Learning", "Artificial Intelligence", "Web3", "Game Development"}
 
-func projectFromInput(in models.PermintaanProyek) (models.Proyek, error) {
+func projectFromInput(in models.ProyekRequest) (models.Proyek, error) {
 	in.Judul = strings.TrimSpace(in.Judul)
 	if in.Judul == "" {
 		return models.Proyek{}, fiber.NewError(400, "Judul proyek wajib diisi")
@@ -57,11 +57,22 @@ func (h *Handler) ListProjects(c *fiber.Ctx) error {
 }
 
 func (h *Handler) CreateProject(c *fiber.Ctx) error {
-	var input models.PermintaanProyek
+	var input models.ProyekRequest
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Body JSON tidak valid",
+			"error": "Body request tidak valid",
 		})
+	}
+	urlGambar, err := h.simpanGambar(c, "project")
+	if err != nil {
+		fiberErr, ok := err.(*fiber.Error)
+		if !ok {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Terjadi kesalahan pada server"})
+		}
+		return c.Status(fiberErr.Code).JSON(fiber.Map{"error": fiberErr.Message})
+	}
+	if urlGambar != "" {
+		input.URLSampulProyek = urlGambar
 	}
 	item, err := projectFromInput(input)
 	if err != nil {
@@ -114,11 +125,22 @@ func (h *Handler) UpdateProject(c *fiber.Ctx) error {
 			"error": err.Error(),
 		})
 	}
-	var input models.PermintaanProyek
+	var input models.ProyekRequest
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Body JSON tidak valid",
+			"error": "Body request tidak valid",
 		})
+	}
+	urlGambar, err := h.simpanGambar(c, "project")
+	if err != nil {
+		fiberErr, ok := err.(*fiber.Error)
+		if !ok {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Terjadi kesalahan pada server"})
+		}
+		return c.Status(fiberErr.Code).JSON(fiber.Map{"error": fiberErr.Message})
+	}
+	if urlGambar != "" {
+		input.URLSampulProyek = urlGambar
 	}
 	item, err := projectFromInput(input)
 	if err != nil {

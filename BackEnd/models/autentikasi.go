@@ -14,12 +14,12 @@ type Autentikasi struct {
 
 func (Autentikasi) TableName() string { return "auth" }
 
-type PermintaanLogin struct {
+type LoginRequest struct {
 	NamaPengguna string `json:"username"`
 	KataSandi    string `json:"password"`
 }
 
-type PermintaanGantiKataSandi struct {
+type GantiKataSandiRequest struct {
 	KataSandiLama string `json:"current_password"`
 	KataSandiBaru string `json:"new_password"`
 }

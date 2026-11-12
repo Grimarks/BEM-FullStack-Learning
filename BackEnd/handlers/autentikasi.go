@@ -15,7 +15,7 @@ import (
 )
 
 func (h *Handler) Login(c *fiber.Ctx) error {
-	var input models.PermintaanLogin
+	var input models.LoginRequest
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Body JSON tidak valid",
@@ -76,7 +76,7 @@ func (h *Handler) Me(c *fiber.Ctx) error {
 }
 
 func (h *Handler) ChangePassword(c *fiber.Ctx) error {
-	var input models.PermintaanGantiKataSandi
+	var input models.GantiKataSandiRequest
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Body JSON tidak valid",

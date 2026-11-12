@@ -15,7 +15,7 @@ type TeknologiProyek struct {
 
 func (TeknologiProyek) TableName() string { return "teknologi_proyek" }
 
-type PermintaanTeknologiProyek struct {
+type TeknologiProyekRequest struct {
 	IDTeknologi uint   `json:"id_teknologi"`
 	Kategori    string `json:"kategori"`
 }

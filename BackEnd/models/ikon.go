@@ -13,8 +13,8 @@ type Ikon struct {
 
 func (Ikon) TableName() string { return "ikon" }
 
-type PermintaanIkon struct {
-	NamaIkon string `json:"nama_ikon"`
-	URLIkon  string `json:"url_ikon"`
-	Kategori string `json:"kategori_ikon"`
+type IkonRequest struct {
+	NamaIkon string `json:"nama_ikon" form:"nama_ikon"`
+	URLIkon  string `json:"url_ikon" form:"url_ikon"`
+	Kategori string `json:"kategori_ikon" form:"kategori_ikon"`
 }

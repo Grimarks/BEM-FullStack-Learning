@@ -16,12 +16,12 @@ type Profil struct {
 
 func (Profil) TableName() string { return "profile" }
 
-type PermintaanPerbaruiProfil struct {
-	NamaLengkap          string `json:"nama_lengkap"`
-	URLFotoProfil        string `json:"url_foto_profil"`
-	JabatanProfesional   string `json:"jabatan_profesional"`
-	Lokasi               string `json:"lokasi"`
-	Email                string `json:"email"`
-	Biografi             string `json:"biografi"`
-	DeskripsiTentangSaya string `json:"deskripsi_tentang_saya"`
+type ProfilRequest struct {
+	NamaLengkap          string `json:"nama_lengkap" form:"nama_lengkap"`
+	URLFotoProfil        string `json:"url_foto_profil" form:"url_foto_profil"`
+	JabatanProfesional   string `json:"jabatan_profesional" form:"jabatan_profesional"`
+	Lokasi               string `json:"lokasi" form:"lokasi"`
+	Email                string `json:"email" form:"email"`
+	Biografi             string `json:"biografi" form:"biografi"`
+	DeskripsiTentangSaya string `json:"deskripsi_tentang_saya" form:"deskripsi_tentang_saya"`
 }

@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func teknologiDariInput(db *gorm.DB, in models.PermintaanTeknologi) (models.Teknologi, error) {
+func teknologiDariInput(db *gorm.DB, in models.TeknologiRequest) (models.Teknologi, error) {
 	in.NamaTeknologi = strings.TrimSpace(in.NamaTeknologi)
 	if in.NamaTeknologi == "" {
 		return models.Teknologi{}, fiber.NewError(400, "Nama teknologi wajib diisi")
@@ -34,7 +34,7 @@ func (h *Handler) ListTeknologi(c *fiber.Ctx) error {
 	})
 }
 func (h *Handler) CreateTeknologi(c *fiber.Ctx) error {
-	var input models.PermintaanTeknologi
+	var input models.TeknologiRequest
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Body JSON tidak valid",
@@ -80,7 +80,7 @@ func (h *Handler) UpdateTeknologi(c *fiber.Ctx) error {
 			"error": err.Error(),
 		})
 	}
-	var input models.PermintaanTeknologi
+	var input models.TeknologiRequest
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Body JSON tidak valid",
@@ -182,7 +182,7 @@ func (h *Handler) AddProjectTechnology(c *fiber.Ctx) error {
 			"error": err.Error(),
 		})
 	}
-	var input models.PermintaanTeknologiProyek
+	var input models.TeknologiProyekRequest
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Body JSON tidak valid",
@@ -226,7 +226,7 @@ func (h *Handler) UpdateProjectTechnology(c *fiber.Ctx) error {
 			"error": err.Error(),
 		})
 	}
-	var input models.PermintaanTeknologiProyek
+	var input models.TeknologiProyekRequest
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Body JSON tidak valid",
@@ -294,7 +294,7 @@ func (h *Handler) ListProfileTechnologies(c *fiber.Ctx) error {
 	})
 }
 func (h *Handler) AddProfileTechnology(c *fiber.Ctx) error {
-	var input models.PermintaanTeknologiProfil
+	var input models.TeknologiProfilRequest
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Body JSON tidak valid",
@@ -326,7 +326,7 @@ func (h *Handler) UpdateProfileTechnology(c *fiber.Ctx) error {
 			"error": err.Error(),
 		})
 	}
-	var input models.PermintaanTeknologiProfil
+	var input models.TeknologiProfilRequest
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Body JSON tidak valid",

@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func mediaSosialDariInput(db *gorm.DB, in models.PermintaanMediaSosial) (models.MediaSosial, error) {
+func mediaSosialDariInput(db *gorm.DB, in models.MediaSosialRequest) (models.MediaSosial, error) {
 	in.NamaPlatform, in.NamaAkun = strings.TrimSpace(in.NamaPlatform), strings.TrimSpace(in.NamaAkun)
 	if in.NamaPlatform == "" || in.NamaAkun == "" {
 		return models.MediaSosial{}, fiber.NewError(400, "Nama platform dan nama akun wajib diisi")
@@ -36,7 +36,7 @@ func (h *Handler) ListMediaSosial(c *fiber.Ctx) error {
 	})
 }
 func (h *Handler) CreateMediaSosial(c *fiber.Ctx) error {
-	var input models.PermintaanMediaSosial
+	var input models.MediaSosialRequest
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Body JSON tidak valid",
@@ -82,7 +82,7 @@ func (h *Handler) UpdateMediaSosial(c *fiber.Ctx) error {
 			"error": err.Error(),
 		})
 	}
-	var input models.PermintaanMediaSosial
+	var input models.MediaSosialRequest
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Body JSON tidak valid",

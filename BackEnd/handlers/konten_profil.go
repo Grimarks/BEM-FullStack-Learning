@@ -20,7 +20,7 @@ func (h *Handler) GetContent(c *fiber.Ctx) error {
 }
 
 func (h *Handler) UpdateContent(c *fiber.Ctx) error {
-	var input models.PermintaanPerbaruiKontenWebsite
+	var input models.KontenWebsiteRequest
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Body JSON tidak valid",
@@ -65,11 +65,22 @@ func (h *Handler) GetProfile(c *fiber.Ctx) error {
 }
 
 func (h *Handler) UpdateProfile(c *fiber.Ctx) error {
-	var input models.PermintaanPerbaruiProfil
+	var input models.ProfilRequest
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Body JSON tidak valid",
+			"error": "Body request tidak valid",
 		})
+	}
+	urlGambar, err := h.simpanGambar(c, "profile")
+	if err != nil {
+		fiberErr, ok := err.(*fiber.Error)
+		if !ok {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Terjadi kesalahan pada server"})
+		}
+		return c.Status(fiberErr.Code).JSON(fiber.Map{"error": fiberErr.Message})
+	}
+	if urlGambar != "" {
+		input.URLFotoProfil = urlGambar
 	}
 	input.NamaLengkap = strings.TrimSpace(input.NamaLengkap)
 	if input.NamaLengkap == "" {

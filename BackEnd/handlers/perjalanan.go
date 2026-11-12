@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func experienceFromInput(in models.PermintaanPerjalanan) (models.Perjalanan, error) {
+func experienceFromInput(in models.PerjalananRequest) (models.Perjalanan, error) {
 	institution := strings.TrimSpace(in.Institusi)
 	if institution == "" {
 		return models.Perjalanan{}, fiber.NewError(400, "Institusi wajib diisi")
@@ -78,7 +78,7 @@ func (h *Handler) ListExperiences(c *fiber.Ctx) error {
 }
 
 func (h *Handler) CreateExperience(c *fiber.Ctx) error {
-	var input models.PermintaanPerjalanan
+	var input models.PerjalananRequest
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Body JSON tidak valid",
@@ -126,7 +126,7 @@ func (h *Handler) UpdateExperience(c *fiber.Ctx) error {
 			"error": err.Error(),
 		})
 	}
-	var input models.PermintaanPerjalanan
+	var input models.PerjalananRequest
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Body JSON tidak valid",

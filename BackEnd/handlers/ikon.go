@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func ikonDariInput(in models.PermintaanIkon) (models.Ikon, error) {
+func ikonDariInput(in models.IkonRequest) (models.Ikon, error) {
 	in.NamaIkon = strings.TrimSpace(in.NamaIkon)
 	if in.NamaIkon == "" || in.URLIkon == "" {
 		return models.Ikon{}, fiber.NewError(400, "Nama dan URL ikon wajib diisi")
@@ -38,11 +38,22 @@ func (h *Handler) ListIkon(c *fiber.Ctx) error {
 	})
 }
 func (h *Handler) CreateIkon(c *fiber.Ctx) error {
-	var input models.PermintaanIkon
+	var input models.IkonRequest
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Body JSON tidak valid",
+			"error": "Body request tidak valid",
 		})
+	}
+	urlGambar, err := h.simpanGambar(c, "icon")
+	if err != nil {
+		fiberErr, ok := err.(*fiber.Error)
+		if !ok {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Terjadi kesalahan pada server"})
+		}
+		return c.Status(fiberErr.Code).JSON(fiber.Map{"error": fiberErr.Message})
+	}
+	if urlGambar != "" {
+		input.URLIkon = urlGambar
 	}
 	item, err := ikonDariInput(input)
 	if err != nil {
@@ -84,11 +95,22 @@ func (h *Handler) UpdateIkon(c *fiber.Ctx) error {
 			"error": err.Error(),
 		})
 	}
-	var input models.PermintaanIkon
+	var input models.IkonRequest
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Body JSON tidak valid",
+			"error": "Body request tidak valid",
 		})
+	}
+	urlGambar, err := h.simpanGambar(c, "icon")
+	if err != nil {
+		fiberErr, ok := err.(*fiber.Error)
+		if !ok {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Terjadi kesalahan pada server"})
+		}
+		return c.Status(fiberErr.Code).JSON(fiber.Map{"error": fiberErr.Message})
+	}
+	if urlGambar != "" {
+		input.URLIkon = urlGambar
 	}
 	item, err := ikonDariInput(input)
 	if err != nil {
