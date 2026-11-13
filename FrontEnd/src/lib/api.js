@@ -1,6 +1,5 @@
 import { readDb } from "../data/mockDb.js";
-import { journeyFromApi, projectFromApi, journeyToPublic, projectToPublic } from "./mappers.js";
-
+import { journeyFromApi, projectFromApi, journeyToPublic, projectToPublic, heroFromApi, profileFromApi, techLinkFromApi, footerTextFromApi, socialFromApi, certificateFromApi, certificateToPublic } from "./mappers.js";
 export const USE_MOCK = import.meta.env.VITE_USE_MOCK === "true";
 
 const BASE_URL = import.meta.env.VITE_API_URL || "/api";
@@ -82,6 +81,29 @@ const realApi = {
         if (!project) throw new ApiError("Proyek tidak ditemukan.", { status: 404, code: "not_found" });
         return project;
     },
+    getHero: async (options) => {
+        const portfolio = await getPortfolio(options);
+        return heroFromApi(portfolio.website_content ?? {});
+    },
+    getProfile: async (options) => {
+        const portfolio = await getPortfolio(options);
+        const data = portfolio.profile ?? {};
+        return {
+            ...profileFromApi(data.profile ?? {}),
+            tech: (data.technologies ?? []).map(techLinkFromApi),
+        };
+    },
+    getFooter: async (options) => {
+        const portfolio = await getPortfolio(options);
+        return {
+            ...footerTextFromApi(portfolio.website_content ?? {}),
+            socials: (portfolio.social_links ?? []).map(socialFromApi),
+        };
+    },
+    getCertificates: async (options) => {
+        const portfolio = await getPortfolio(options);
+        return (portfolio.certificates ?? []).map(certificateFromApi).map(certificateToPublic);
+    },
 };
 
 const MOCK_MODE = "normal";
@@ -115,6 +137,10 @@ function mockGet(getData, { signal } = {}) {
 const list = (items) => (MOCK_MODE === "empty" ? [] : items);
 
 const mockApi = {
+    getHero: (options) => mockGet(() => readDb().hero, options),
+    getProfile: (options) => mockGet(() => readDb().profile, options),
+    getFooter: (options) => mockGet(() => readDb().footer, options),
+    getCertificates: (options) => mockGet(() => list(readDb().certificates).map(certificateToPublic), options),
     getJourney: (options) => mockGet(() => list(readDb().journey).map(journeyToPublic), options),
     getProjects: (options) => mockGet(() => list(readDb().projects).map(projectToPublic), options),
     getProject: (id, options) =>

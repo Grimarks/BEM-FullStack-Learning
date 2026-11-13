@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { certificates } from "../../data/profile.js";
+import { api } from "../../lib/api.js";
+import { useFetch } from "../../hooks/useFetch.js";
 import { useCarousel } from "../../hooks/useCarousel.js";
 import SectionHeading from "../ui/SectionHeading.jsx";
 import Container from "../ui/Container.jsx";
@@ -8,10 +9,13 @@ import MediaCard from "../ui/MediaCard.jsx";
 import DetailModal, { DetailField } from "../ui/DetailModal.jsx";
 import Chip from "../ui/Chip.jsx";
 import Decor from "../ui/Decor.jsx";
+import { Skeleton, ErrorState, EmptyState } from "../ui/FetchStates.jsx";
 
 export default function Certificates() {
-
-    const carousel = useCarousel();
+    const { status, data, error, reload } = useFetch(api.getCertificates);
+    const certificates = data ?? [];
+    const hasCertificates = status === "success" && certificates.length > 0;
+    const carousel = useCarousel(certificates.length);
     const [selected, setSelected] = useState(null);
 
     return (
@@ -30,34 +34,54 @@ export default function Certificates() {
                         line1="Sertifikasi dan penghargaan"
                         line2="yang dimiliki oleh saya."
                     />
-                    <CarouselControls
-                        label="Sertifikat"
-                        onPrev={carousel.prev}
-                        onNext={carousel.next}
-                        canPrev={carousel.canPrev}
-                        canNext={carousel.canNext}
-                    />
+                    {hasCertificates && (
+                        <CarouselControls
+                            label="Sertifikat"
+                            onPrev={carousel.prev}
+                            onNext={carousel.next}
+                            canPrev={carousel.canPrev}
+                            canNext={carousel.canNext}
+                        />
+                    )}
                 </div>
 
-                <ul
-                    ref={carousel.trackRef}
-                    className="no-scrollbar -mx-2 mt-12 flex snap-x snap-mandatory scroll-px-2 gap-6 overflow-x-auto px-2 pt-2 pb-6 lg:mt-slide"
-                >
-                    {certificates.map((cert) => (
-                        <li key={cert.id} className="carousel-card shrink-0 snap-start">
-                            <MediaCard
-                                image={cert.image}
-                                alt={`Sertifikat ${cert.title}`}
-                                tagLeft="Sertifikasi"
-                                tagRight={cert.issuer}
-                                onOpen={() => setSelected(cert)}
-                            />
-                            <p className="mt-3 font-mono text-[10px] uppercase tracking-label text-stone">
-                                {cert.issuer} · {cert.date}
-                            </p>
-                        </li>
-                    ))}
-                </ul>
+                <div className="mt-12 lg:mt-slide">
+                    {status === "loading" && (
+                        <div className="-mx-2 flex gap-6 overflow-hidden px-2 pt-2 pb-6">
+                            <p className="sr-only" role="status">Memuat sertifikasi…</p>
+                            <Skeleton className="carousel-card aspect-[582/380] shrink-0" />
+                            <Skeleton className="carousel-card aspect-[582/380] shrink-0" />
+                        </div>
+                    )}
+
+                    {status === "error" && <ErrorState error={error} onRetry={reload} />}
+
+                    {status === "success" && certificates.length === 0 && (
+                        <EmptyState>Belum ada sertifikasi yang ditambahkan.</EmptyState>
+                    )}
+
+                    {hasCertificates && (
+                        <ul
+                            ref={carousel.trackRef}
+                            className="no-scrollbar -mx-2 flex snap-x snap-mandatory scroll-px-2 gap-6 overflow-x-auto px-2 pt-2 pb-6"
+                        >
+                            {certificates.map((cert) => (
+                                <li key={cert.id} className="carousel-card shrink-0 snap-start">
+                                    <MediaCard
+                                        image={cert.image}
+                                        alt={`Sertifikat ${cert.title}`}
+                                        tagLeft="Sertifikasi"
+                                        tagRight={cert.issuer}
+                                        onOpen={() => setSelected(cert)}
+                                    />
+                                    <p className="mt-3 font-mono text-[10px] uppercase tracking-label text-stone">
+                                        {[cert.title, cert.date].filter(Boolean).join(" · ")}
+                                    </p>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
             </Container>
 
             <DetailModal
@@ -72,14 +96,28 @@ export default function Certificates() {
                 previewLabel="Pratinjau sertifikasi"
                 aboutTitle="Tentang kredensial"
                 description={selected?.description}
-                footerNote={`Sertifikasi / ${selected?.issuer} · ${selected?.date}`}
+                footerNote={["Sertifikasi", selected?.issuer, selected?.date].filter(Boolean).join(" · ")}
             >
                 <DetailField label="Penerbit" divider>
                     {selected?.issuer}
                 </DetailField>
-                <DetailField label="Tanggal penyelesaian" divider>
-                    {selected?.date}
-                </DetailField>
+                {selected?.date && (
+                    <DetailField label="Tanggal terbit" divider>
+                        {selected.date}
+                    </DetailField>
+                )}
+                {selected?.credentialId && (
+                    <DetailField label="ID kredensial" divider>
+                        {selected.credentialId}
+                    </DetailField>
+                )}
+                {selected?.credentialUrl && (
+                    <DetailField label="Tautan kredensial" divider>
+                        <a href={selected.credentialUrl} target="_blank" rel="noreferrer" className="text-violet hover:underline">
+                            Lihat kredensial
+                        </a>
+                    </DetailField>
+                )}
                 <div>
                     <Chip tone="lime">Sertifikasi</Chip>
                 </div>

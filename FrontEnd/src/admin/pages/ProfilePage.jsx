@@ -5,31 +5,16 @@ import { PageHeader, PageLoading, PageError, FormActions } from "../components/P
 import { TextField, TextArea } from "../components/Field.jsx";
 import ImageUpload from "../components/ImageUpload.jsx";
 import TechPicker from "../components/TechPicker.jsx";
-function fromApi({ skills, ...profile }) {
-  return { ...profile, skillsText: (skills ?? []).join(", ") };
-}
-
-function toApi({ skillsText, ...values }) {
-  const skills = skillsText
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-  return { ...values, skills };
-}
-
-async function saveProfile(values) {
-  const saved = await adminApi.saveProfile(toApi(values));
-  return fromApi(saved);
-}
 
 function ProfileForm({ initial }) {
-  const form = useForm(fromApi(initial), saveProfile);
+  const form = useForm(initial, adminApi.saveProfile);
 
   return (
     <form onSubmit={form.submit} className="mt-10">
       <div className="grid gap-x-10 gap-y-6 lg:grid-cols-[13.5rem_1fr]">
         <ImageUpload
           label="Unggah foto"
+          purpose="profile"
           value={form.values.photoUrl}
           onChange={(url) => form.set("photoUrl", url)}
           className="max-w-[13.5rem]"
@@ -45,17 +30,13 @@ function ProfileForm({ initial }) {
       <div className="mt-8 grid gap-x-10 gap-y-6 md:grid-cols-2">
         <TextArea label="Biografi" placeholder="Tulis biografi singkat..." rows={4} {...form.bind("bio")} />
         <TextArea label="Deskripsi tentang saya" placeholder="Tulis deskripsi tentang Anda..." rows={4} {...form.bind("about")} />
-        <TextField
-          label="Keahlian"
-          placeholder="Pisahkan keahlian dengan koma"
-          hint="Contoh: Pemikiran Produk, Desain REST API, Manajemen Database"
-          {...form.bind("skillsText")}
-        />
-        <TechPicker
-          value={form.values.tech ?? []}
-          onChange={(tech) => form.set("tech", tech)}
-          hint="Pilih ikon dari pustaka atau unggah SVG/PNG · pratinjau dan atur urutan"
-        />
+        <div className="md:col-span-2">
+          <TechPicker
+            value={form.values.tech ?? []}
+            onChange={(tech) => form.set("tech", tech)}
+            hint="Pilih dari katalog atau buat teknologi baru dengan ikon PNG/JPG/WebP · atur urutan dengan tombol panah"
+          />
+        </div>
       </div>
 
       <FormActions onCancel={form.reset} saving={form.saving} status={form.status} cancelDisabled={!form.dirty} />
@@ -68,7 +49,7 @@ export default function ProfilePage() {
 
   return (
     <>
-      <PageHeader title="Profil" description="Kelola profil, keahlian, foto, dan ikon teknologi." />
+      <PageHeader title="Profil" description="Kelola profil, foto, dan ikon teknologi." />
       {status === "error" ? (
         <PageError error={error} onRetry={reload} />
       ) : !data ? (

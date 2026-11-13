@@ -1,133 +1,110 @@
+export const mockTechnologies = [
+    { id: 1, name: "React", iconId: null, iconUrl: null },
+    { id: 2, name: "Node.js", iconId: null, iconUrl: null },
+    { id: 3, name: "TypeScript", iconId: null, iconUrl: null },
+    { id: 4, name: "PostgreSQL", iconId: null, iconUrl: null },
+];
+const [react, node, ts, pg] = mockTechnologies;
+
 export const mockJourney = [
     {
-        id: "senior-fullstack",
-        kind: "Pekerjaan",
+        id: 1,
         title: "[Senior Fullstack Engineer]",
         org: "[Nama Perusahaan]",
+        kind: "pekerjaan",
         startDate: "2022-01",
         endDate: null,
-        extra: "",
         description:
             "Memimpin tim fitur lintas frontend, backend, dan sistem desain sambil menjaga kualitas kode dan kolaborasi yang efektif.",
+        sortOrder: 1,
     },
     {
-        id: "fullstack-dev",
-        kind: "Pekerjaan",
+        id: 2,
         title: "[Fullstack Developer]",
         org: "[Perusahaan Sebelumnya]",
+        kind: "pekerjaan",
         startDate: "2019-06",
         endDate: "2021-12",
-        extra: "",
         description:
             "Membangun antarmuka responsif, REST API, dan pipeline data sambil bekerja sama erat dengan mitra produk dan desain.",
+        sortOrder: 2,
     },
     {
-        id: "sarjana",
-        kind: "Pendidikan",
+        id: 3,
         title: "[Sarjana Ilmu Komputer]",
         org: "[Nama Universitas]",
+        kind: "pendidikan",
         startDate: "2015-08",
         endDate: "2019-06",
-        extra: "",
         description: "Berfokus pada rekayasa perangkat lunak, desain sistem, dan komputasi berpusat pada manusia.",
+        sortOrder: 3,
     },
     {
-        id: "bootcamp",
-        kind: "Kursus",
+        id: 4,
         title: "[Bootcamp / Kursus Online]",
         org: "[Nama Program]",
+        kind: "pelatihan",
         startDate: "2018-01",
         endDate: "2018-04",
-        extra: "",
+        description: "",
+        sortOrder: 4,
     },
 ];
 
-const react = { id: "react", name: "React", iconKey: "react", iconUrl: null };
-const node = { id: "nodejs", name: "Node.js", iconKey: "nodejs", iconUrl: null };
-const ts = { id: "typescript", name: "TypeScript", iconKey: "typescript", iconUrl: null };
-const pg = { id: "postgresql", name: "PostgreSQL", iconKey: "postgresql", iconUrl: null };
-
 export const mockProjects = [
     {
-        id: "proyek-1",
+        id: 1,
         title: "[Nama Proyek]",
-        category: "[Kategori]",
-        categoryLong: "Desain Produk / Aplikasi Web",
-        status: "Konsep",
+        category: "UI/UX",
+        status: "konsep",
         imageUrl: "/images/project-1.webp",
         summary:
             "Ruang kerja konseptual yang menyeimbangkan tugas admin dengan fokus kreatif dan struktur produk yang matang.",
         date: "2025-03",
         demoUrl: "",
-        githubUrl: "https://github.com/[username]/[repository]",
-        tech: [react, node],
-        links: [],
+        githubUrl: "https://github.com/username/repository",
+        priority: 1,
+        tech: [{ ...react, role: "Frontend" }, { ...node, role: "Backend" }],
     },
     {
-        id: "proyek-2",
+        id: 2,
         title: "[Nama Proyek]",
-        category: "[Kategori]",
-        categoryLong: "Aplikasi Web",
-        status: "Berjalan",
+        category: "Website",
+        status: "on-going",
         imageUrl: "/images/project-2.webp",
         summary: "Deskripsi singkat proyek: masalah yang diselesaikan, peran kamu, dan hasilnya.",
         date: "2025-01",
         demoUrl: "",
-        githubUrl: "https://github.com/[username]/[repository]",
-        tech: [react, ts],
-        links: [],
+        githubUrl: "https://github.com/username/repository",
+        priority: 2,
+        tech: [{ ...react, role: "Frontend" }, { ...ts, role: "Frontend" }],
     },
     {
-        id: "proyek-3",
+        id: 3,
         title: "[Nama Proyek]",
-        category: "[Kategori]",
-        categoryLong: "API / Backend",
-        status: "Selesai",
+        category: "Website",
+        status: "finished",
         imageUrl: "/images/project-3.webp",
         summary: "Deskripsi singkat proyek: masalah yang diselesaikan, peran kamu, dan hasilnya.",
         date: "2024-09",
         demoUrl: "",
-        githubUrl: "https://github.com/[username]/[repository]",
-        tech: [node, pg],
-        links: [],
+        githubUrl: "https://github.com/username/repository",
+        priority: 3,
+        tech: [{ ...node, role: "Backend" }, { ...pg, role: "Database" }],
     },
 ];
 
-export const mockCertificates = [
-    {
-        id: "sertifikat-1",
-        title: "[Judul Sertifikasi]",
-        issuer: "[Penerbit]",
-        issuedAt: "2026-03-14",
-        expiresAt: null,
-        credentialId: "",
-        credentialUrl: "",
-        imageUrl: "/images/certificate-placeholder.svg",
-        description: "Placeholder untuk penerbit, tanggal penyelesaian, dan deskripsi singkat tentang kredensial.",
-    },
-    {
-        id: "sertifikat-2",
-        title: "[Judul Sertifikasi]",
-        issuer: "[Penerbit]",
-        issuedAt: "2025-11-02",
-        expiresAt: null,
-        credentialId: "",
-        credentialUrl: "",
-        imageUrl: "/images/certificate-placeholder.svg",
-        description: "Placeholder untuk penerbit, tanggal penyelesaian, dan deskripsi singkat tentang kredensial.",
-    },
-    {
-        id: "sertifikat-3",
-        title: "[Judul Sertifikasi]",
-        issuer: "[Penerbit]",
-        issuedAt: "2025-06-20",
-        expiresAt: null,
-        credentialId: "",
-        credentialUrl: "",
-        imageUrl: "/images/certificate-placeholder.svg",
-        description: "Placeholder untuk penerbit, tanggal penyelesaian, dan deskripsi singkat tentang kredensial.",
-    },
-];
+export const mockCertificates = [1, 2, 3].map((n, i) => ({
+    id: n,
+    title: "[Judul Sertifikasi]",
+    issuer: "[Penerbit]",
+    issuedAt: ["2026-03-14", "2025-11-02", "2025-06-20"][i],
+    expiresAt: null,
+    credentialId: "",
+    credentialUrl: "",
+    description: "Placeholder untuk penerbit, tanggal penyelesaian, dan deskripsi singkat tentang kredensial.",
+    sortOrder: n,
+}));
 
 export const mockHero = {
     displayName: "[Nama Full]",
@@ -151,7 +128,6 @@ export const mockProfile = {
     bio: "Sedikit niat di setiap interaksi.",
     about:
         "Saya bermitra dengan tim untuk mengubah ide produk menjadi pengalaman yang dipoles dan mudah dikelola. Pendekatan saya menyeimbangkan kejelasan visual, kelayakan teknis, dan kolaborasi yang efektif.",
-    skills: ["Pemikiran Produk", "Pengembangan Frontend", "Pengembangan Backend", "Desain REST API", "Manajemen Database"],
     tech: [react, ts, node],
 };
 
@@ -160,8 +136,8 @@ export const mockFooter = {
     copyright: "© 2026 [Nama Full]",
     extraText: "",
     socials: [
-        { id: "linkedin", platform: "linkedin", label: "@namaakun", url: "https://linkedin.com/in/namaakun" },
-        { id: "cv", platform: "cv", label: "Buka / unduh CV", url: "/cv.pdf" },
-        { id: "instagram", platform: "instagram", label: "@namaakun", url: "https://instagram.com/namaakun" },
+        { id: 1, platform: "LinkedIn", label: "@namaakun", url: "https://linkedin.com/in/namaakun", iconId: null, iconUrl: null, sortOrder: 1 },
+        { id: 2, platform: "CV", label: "Buka / unduh CV", url: "/cv.pdf", iconId: null, iconUrl: null, sortOrder: 2 },
+        { id: 3, platform: "Instagram", label: "@namaakun", url: "https://instagram.com/namaakun", iconId: null, iconUrl: null, sortOrder: 3 },
     ],
 };

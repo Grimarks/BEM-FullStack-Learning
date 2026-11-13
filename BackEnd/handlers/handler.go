@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"net/mail"
 	"net/url"
 	"strconv"
 	"strings"

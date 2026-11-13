@@ -8,7 +8,7 @@ export const profile = {
     cvUrl: "/cv.pdf",
     heroCorner: "Akademik x PTI",
 
-    itch:
+    pitch:
         "Saya membantu tim meluncurkan produk yang kuat dan mudah dikelola — memadukan pemikiran produk, kejelasan visual, dan pemecahan masalah berbasis kode.",
     motto: "Tidak ada niat di setiap interaksi.",
     about:
@@ -18,7 +18,7 @@ export const profile = {
     ],
 
     contacts: [
-        { type: "email", label: "Email Gweh nih", href: "darrell.satriano@gmail.com" },
+        { type: "email", label: "Email Gweh nih", href: "mailto:darrell.satriano@gmail.com"},
         { type: "link", label: "Porto Keknya", href: "https://www.satriano.me" },
         { type: "location", label: "Bumi" },
         { type: "whatsapp", label: "WA?", href: "https://wa.me/6281271148877" },

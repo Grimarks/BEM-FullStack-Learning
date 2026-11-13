@@ -5,9 +5,10 @@ import {
     mockHero,
     mockProfile,
     mockFooter,
+    mockTechnologies,
 } from "./mock.js";
 
-const STORAGE_KEY = "portfolio-mock-db-v1";
+const STORAGE_KEY = "portfolio-mock-db-v3";
 
 function seed() {
     return structuredClone({
@@ -17,6 +18,7 @@ function seed() {
         journey: mockJourney,
         projects: mockProjects,
         certificates: mockCertificates,
+        technologies: mockTechnologies,
     });
 }
 
@@ -38,8 +40,10 @@ export function writeDb(db) {
     try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
     } catch {
+        // Penuh (misalnya karena gambar besar) atau diblokir: biarkan di memori saja.
     }
 }
+
 export function resetDb() {
     try {
         localStorage.removeItem(STORAGE_KEY);

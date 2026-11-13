@@ -67,6 +67,7 @@ export default function OverviewPage() {
                   <tr key={page.path} className="border-b border-zinc-200">
                     <td className="px-6 py-5">{page.label}</td>
                     <td className="px-6 py-5 text-zinc-500">
+                      {/* ?? "…" = tampilkan titik-titik selama data belum datang */}
                       {summary?.[page.key] ?? "…"}
                     </td>
                     <td className="px-6 py-5">

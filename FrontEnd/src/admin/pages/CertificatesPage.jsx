@@ -1,12 +1,11 @@
 import { Plus } from "lucide-react";
 import { adminApi } from "../lib/adminApi.js";
 import { useCrud } from "../hooks/useCrud.js";
-import { PageHeader, PageError, FormActions } from "../components/PageHeader.jsx";
-import { TextField } from "../components/Field.jsx";
-import { AdminTable, RowActions, Thumb, EmptyRow, LoadingRows, FormHeading, cell, rowClass } from "../components/TableParts.jsx";
+import { PageHeader, PageError, FormActions, Notice } from "../components/PageHeader.jsx";
+import { TextField, TextArea } from "../components/Field.jsx";
+import { AdminTable, RowActions, MoveButtons, EmptyRow, LoadingRows, FormHeading, cell, rowClass } from "../components/TableParts.jsx";
 import AdminButton from "../components/AdminButton.jsx";
 import ConfirmDialog from "../components/ConfirmDialog.jsx";
-import ImageUpload from "../components/ImageUpload.jsx";
 
 const empty = {
   title: "",
@@ -15,14 +14,14 @@ const empty = {
   expiresAt: "",
   credentialId: "",
   credentialUrl: "",
-  imageUrl: "",
   description: "",
 };
+
 const fromApi = (item) => ({ ...empty, ...item, expiresAt: item.expiresAt ?? "" });
 const toApi = (values) => ({ ...values, expiresAt: values.expiresAt || null });
 
 const columns = [
-  { label: "Sertifikat" },
+  { label: "Sertifikat", className: "pl-14" },
   { label: "Organisasi" },
   { label: "Tanggal terbit" },
   { label: "Aksi", className: "w-36" },
@@ -54,16 +53,16 @@ export default function CertificatesPage() {
             ) : crud.items.length === 0 ? (
               <EmptyRow colSpan={columns.length} />
             ) : (
-              crud.items.map((item) => (
+              crud.items.map((item, index) => (
                 <tr key={item.id} className={rowClass}>
                   <td className={cell}>
-                    <div className="flex items-center gap-6">
-                      <Thumb src={item.imageUrl} />
+                    <div className="flex items-center gap-4">
+                      <MoveButtons name={item.title} index={index} count={crud.items.length} onMove={crud.move} />
                       <span className="font-semibold">{item.title}</span>
                     </div>
                   </td>
                   <td className={`${cell} text-zinc-500`}>{item.issuer}</td>
-                  <td className={`${cell} text-zinc-500`}>{item.issuedAt?.slice(0, 4)}</td>
+                  <td className={`${cell} text-zinc-500`}>{item.issuedAt?.slice(0, 4) || "—"}</td>
                   <td className={cell}>
                     <RowActions name={item.title} onEdit={() => crud.startEdit(item)} onDelete={() => crud.askDelete(item)} />
                   </td>
@@ -71,6 +70,11 @@ export default function CertificatesPage() {
               ))
             )}
           </AdminTable>
+        )}
+        {crud.orderError && (
+          <Notice tone="error" className="mt-4">
+            Urutan gagal disimpan: {crud.orderError}
+          </Notice>
         )}
       </div>
 
@@ -80,21 +84,12 @@ export default function CertificatesPage() {
           <div className="grid gap-x-10 gap-y-6 md:grid-cols-3">
             <TextField label="Nama sertifikat" placeholder="Masukkan judul" required {...form.bind("title")} />
             <TextField label="Organisasi penerbit" placeholder="Masukkan organisasi" required {...form.bind("issuer")} />
-            <TextField label="Tanggal terbit" type="date" required {...form.bind("issuedAt")} />
-
-            <ImageUpload
-              label="Pratinjau sertifikat"
-              caption="Unggah gambar sertifikat"
-              value={form.values.imageUrl}
-              onChange={(url) => form.set("imageUrl", url)}
-              boxClassName="aspect-[4/3]"
-              className="max-w-[16rem] md:row-span-2"
-            />
+            <TextField label="Tanggal terbit" type="date" {...form.bind("issuedAt")} />
             <TextField label="Tanggal kedaluwarsa (opsional)" type="date" {...form.bind("expiresAt")} />
             <TextField label="ID kredensial (opsional)" placeholder="Masukkan ID kredensial" {...form.bind("credentialId")} />
             <TextField label="URL kredensial" type="url" placeholder="https://" {...form.bind("credentialUrl")} />
-            <TextField label="Deskripsi" placeholder="Masukkan deskripsi" {...form.bind("description")} />
           </div>
+          <TextArea label="Deskripsi" placeholder="Masukkan deskripsi" rows={3} className="mt-6" {...form.bind("description")} />
 
           <FormActions onCancel={crud.cancelEdit} saving={form.saving} status={form.status} />
         </form>

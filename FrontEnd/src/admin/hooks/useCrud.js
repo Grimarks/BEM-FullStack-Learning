@@ -4,11 +4,14 @@ import { useForm } from "./useForm.js";
 import { moveItem } from "../lib/list.js";
 
 const identity = (x) => x;
+
 export function useCrud(api, empty, { fromApi = identity, toApi = identity } = {}) {
   const list = useFetch(api.list);
   const [editingId, setEditingId] = useState(null);
   const formRef = useRef(null);
+
   async function save(values) {
+
     const { id, ...body } = toApi(values);
     const saved = editingId ? await api.update(editingId, body) : await api.create(body);
     setEditingId(saved.id);
@@ -35,6 +38,7 @@ export function useCrud(api, empty, { fromApi = identity, toApi = identity } = {
     form.load(fromApi(item));
     showForm();
   }
+
   function cancelEdit() {
     setEditingId(null);
     form.load(fromApi(empty));
@@ -82,7 +86,7 @@ export function useCrud(api, empty, { fromApi = identity, toApi = identity } = {
     setLocalItems(next);
     setOrderError(null);
     try {
-      await api.reorder(next.map((x) => x.id));
+      await api.reorder(next);
     } catch (error) {
       setOrderError(error.message);
     }
