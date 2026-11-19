@@ -3,6 +3,7 @@ import { adminApi } from "../lib/adminApi.js";
 import { useForm } from "../hooks/useForm.js";
 import { PageHeader, PageLoading, PageError, FormActions } from "../components/PageHeader.jsx";
 import { TextField, TextArea } from "../components/Field.jsx";
+import { LINK_PATTERN, LINK_HINT } from "../../lib/mappers.js";
 
 function HeroForm({ initial }) {
   const form = useForm(initial, adminApi.saveHero);
@@ -12,7 +13,7 @@ function HeroForm({ initial }) {
       <div className="grid gap-x-10 gap-y-6 md:grid-cols-2">
         <TextField label="Nama tampilan" placeholder="Nama Anda" required {...form.bind("displayName")} />
         <TextField label="Label profesi" placeholder="FULLSTACK DEVELOPER" {...form.bind("roleLabel")} />
-        <TextField label="Judul utama" placeholder="Bangun dan luncurkan." {...form.bind("headline")} />
+        <TextField label="Judul utama" placeholder="Bangun dan luncurkan." required {...form.bind("headline")} />
         <TextField label="Teks utama hero" placeholder="Tulis teks utama hero" {...form.bind("heroText")} />
         <TextField label="Teks pendukung" placeholder="Tulis teks pendukung" {...form.bind("supportText")} />
         <TextField label="Teks hero lainnya" placeholder="Tulis teks hero tambahan" {...form.bind("extraText")} />
@@ -20,8 +21,10 @@ function HeroForm({ initial }) {
         <TextField label="Teks tombol CTA" placeholder="Jelajahi proyek" {...form.bind("ctaLabel")} />
         <TextField
           label="URL tujuan CTA"
-          placeholder="https://example.com/projects atau #proyek"
-          hint="Boleh link lengkap (https://...) atau bagian halaman (#proyek)."
+          placeholder="#proyek atau https://example.com"
+          pattern={LINK_PATTERN}
+          title={LINK_HINT}
+          hint={LINK_HINT}
           {...form.bind("ctaUrl")}
         />
       </div>

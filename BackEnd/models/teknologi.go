@@ -4,7 +4,7 @@ import "time"
 
 type Teknologi struct {
 	IDTeknologi   uint      `gorm:"column:id_teknologi;primaryKey;autoIncrement" json:"id_teknologi"`
-	NamaTeknologi string    `gorm:"column:nama_teknologi;not null;uniqueIndex" json:"nama_teknologi"`
+	NamaTeknologi string    `gorm:"column:nama_teknologi;size:100;not null;uniqueIndex" json:"nama_teknologi"`
 	IDIkon        *uint     `gorm:"column:id_ikon;index" json:"id_ikon"`
 	Ikon          *Ikon     `gorm:"BELONGSTO;foreignKey:IDIkon;references:IDIkon" json:"ikon,omitempty"`
 	DibuatPada    time.Time `gorm:"column:created_at;autoCreateTime" json:"created_at"`

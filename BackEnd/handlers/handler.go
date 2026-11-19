@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"net/mail"
 	"net/url"
 	"strconv"
 	"strings"
@@ -62,6 +63,26 @@ func validURL(raw string) bool {
 	}
 	u, err := url.ParseRequestURI(raw)
 	return err == nil && (u.Scheme == "https" || u.Scheme == "http") && u.Host != ""
+}
+
+func validLink(raw string) bool {
+	if raw == "" || validURL(raw) {
+		return true
+	}
+	if len(raw) > 2048 || strings.ContainsAny(raw, " \t\r\n") {
+		return false
+	}
+	if strings.HasPrefix(raw, "#") {
+		return len(raw) > 1
+	}
+	if strings.HasPrefix(raw, "/") && !strings.HasPrefix(raw, "//") {
+		return !strings.Contains(raw, "..")
+	}
+	if email, ok := strings.CutPrefix(raw, "mailto:"); ok {
+		address, err := mail.ParseAddress(email)
+		return err == nil && address.Address == email
+	}
+	return false
 }
 
 func validImagePath(raw string) bool {

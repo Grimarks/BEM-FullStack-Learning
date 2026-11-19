@@ -1,5 +1,7 @@
 import { Check, Sparkle } from "lucide-react";
 import { profile } from "../../data/profile.js";
+import { api } from "../../lib/api.js";
+import { useFetch } from "../../hooks/useFetch.js";
 import SectionHeading from "../ui/SectionHeading.jsx";
 import Container from "../ui/Container.jsx";
 import Decor from "../ui/Decor.jsx";
@@ -10,6 +12,22 @@ function Label({children}){
 }
 
 export default function About(){
+    const { data: me } = useFetch(api.getProfile);
+    const fullName = me?.fullName || profile.fullName;
+    const location = me?.location || profile.location;
+    const photo = me?.photoUrl || profile.photo;
+    const bio = me?.bio || profile.pitch;
+    const about = me?.about || profile.about;
+
+    const contacts = profile.contacts.map((contact) => {
+        if (contact.type === "email" && me?.email) {
+            return { ...contact, label: me.email, href: `mailto:${me.email}` };
+        }
+        if (contact.type === "location" && me?.location) {
+            return { ...contact, label: me.location };
+        }
+        return contact;
+    });
     return(
         <section id="profil" aria-labelledby="profil-title" className="relative overflow-hidden bg-paper bg-grid py-24 md:py-36 lg:slide">
 
@@ -26,7 +44,7 @@ export default function About(){
                         line2="siapakah saya?"
                     />
                     <div className="rounded-3xl border border-white bg-white/60 p-6 shadow-card backdrop-blur lg:p-5">
-                        <p className="leading-loose text-ink lg:leading-relaxed">{profile.pitch}</p>
+                        <p className="leading-loose text-ink lg:leading-relaxed">{bio}</p>
                         <p className="mt-4 font-serif text-xl text-violet-deep italic lg:mt-2">↳ {profile.motto}</p>
                     </div>
                 </div>
@@ -34,26 +52,25 @@ export default function About(){
                     <figure className="relative mx-auto w-full max-w-[340px] -rotate-2 self-start rounded-[22px] bg-cream p-3 shadow-float">
                         <Decor src="/images/mask.png" className="-top-6 -right-6 w-20 rotate-6" />
                         <img
-                            src={profile.photo}
-                            alt={`Foto ${profile.fullName}`}
+                            src={photo}
+                            alt={`Foto ${fullName}`}
                             className="aspect-[1135/1340] w-full rounded-[14px] object-cover lg:aspect-auto lg:h-[clamp(11rem,calc(100svh-24rem),21rem)]"
                         />
                         <figcaption className="flex items-end justify-between px-3 pt-5 pb-3 lg:pt-3 lg:pb-1">
                             <div>
-                                <p className="font-serif text-xl italic">{profile.fullName}</p>
+                                <p className="font-serif text-xl italic">{fullName}</p>
                                 <p className="mt-1 flex items-center gap-2 font-mono text-[10px] uppercase tracking-label text-violet">
                                     <span className="size-1.5 rounded-full bg-pink" aria-hidden="true" />
-                                    {profile.location}
+                                    {location}
                                 </p>
                             </div>
                             <Sparkle className="size-6 fill-violet text-violet" aria-hidden="true" />
                         </figcaption>
                     </figure>
 
-                    {/* Kolom tengah */}
                     <div>
                         <Label>Tentang</Label>
-                        <p className="mt-4 max-w-[46ch] text-lg leading-[1.7] lg:mt-3 lg:text-base lg:leading-relaxed">{profile.about}</p>
+                        <p className="mt-4 max-w-[46ch] text-lg leading-[1.7] lg:mt-3 lg:text-base lg:leading-relaxed">{about}</p>
 
                         <ul className="mt-7 space-y-3 lg:mt-4 lg:space-y-2">
                             {profile.highlights.map((item) => (
@@ -67,7 +84,7 @@ export default function About(){
                         <div className="mt-10 lg:mt-5">
                             <Label>Kontak</Label>
                             <ul className="mt-4 space-y-3 lg:mt-3 lg:grid lg:grid-cols-2 lg:gap-x-4 lg:gap-y-2 lg:space-y-0">
-                                {profile.contacts.map((contact) => {
+                                {contacts.map((contact) => {
                                     const content = (
                                         <>
                                             <ContactIcon type={contact.type} className="size-5 shrink-0 text-muted" />
@@ -93,12 +110,23 @@ export default function About(){
                     <div className="md:col-span-2 lg:col-span-1">
                         <Label>Teknologi</Label>
                         <ul className="mt-5 flex flex-wrap gap-6 lg:mt-3 lg:gap-5">
-                            {profile.tech.map((id) => (
-                                <li key={id} title={techName(id)} className="drop-shadow-[0_6px_10px_rgb(74_31_168/0.15)]">
-                                    <TechLogo id={id} className="size-8" />
-                                    <span className="sr-only">{techName(id)}</span>
-                                </li>
-                            ))}
+                            {me?.tech?.length > 0
+                                ? me.tech.map((t) => (
+                                    <li key={t.id} title={t.name} className="drop-shadow-[0_6px_10px_rgb(74_31_168/0.15)]">
+                                        {t.iconUrl ? (
+                                            <img src={t.iconUrl} alt="" className="size-8" />
+                                        ) : (
+                                            <span className="text-sm font-medium">{t.name}</span>
+                                        )}
+                                        <span className="sr-only">{t.name}</span>
+                                    </li>
+                                ))
+                                : profile.tech.map((id) => (
+                                    <li key={id} title={techName(id)} className="drop-shadow-[0_6px_10px_rgb(74_31_168/0.15)]">
+                                        <TechLogo id={id} className="size-8" />
+                                        <span className="sr-only">{techName(id)}</span>
+                                    </li>
+                                ))}
                         </ul>
 
                         <div className="mt-10 lg:mt-5">

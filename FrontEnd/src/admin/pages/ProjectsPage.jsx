@@ -1,23 +1,19 @@
 import { useState } from "react";
-import { Plus, Search, X } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { adminApi } from "../lib/adminApi.js";
+import { PROJECT_CATEGORIES, PROJECT_STATUSES, projectStatusLabel } from "../../lib/mappers.js";
 import { useCrud } from "../hooks/useCrud.js";
-import { replaceAt, removeAt } from "../lib/list.js";
-import { PageHeader, PageError, FormActions } from "../components/PageHeader.jsx";
+import { PageHeader, PageError, FormActions, Notice } from "../components/PageHeader.jsx";
 import { TextField, TextArea, SelectField } from "../components/Field.jsx";
-import { AdminTable, RowActions, Thumb, EmptyRow, LoadingRows, FormHeading, cell, rowClass } from "../components/TableParts.jsx";
+import { AdminTable, RowActions, MoveButtons, Thumb, EmptyRow, LoadingRows, FormHeading, cell, rowClass } from "../components/TableParts.jsx";
 import AdminButton from "../components/AdminButton.jsx";
 import ConfirmDialog from "../components/ConfirmDialog.jsx";
 import ImageUpload from "../components/ImageUpload.jsx";
 import TechPicker from "../components/TechPicker.jsx";
 
-const CATEGORIES = ["Aplikasi web", "Aplikasi mobile", "Desain produk", "API / Backend", "Lainnya"];
-const STATUSES = ["Konsep", "Berjalan", "Selesai"];
-
 const empty = {
   title: "",
   category: "",
-  categoryLong: "",
   status: "",
   imageUrl: "",
   summary: "",
@@ -25,60 +21,21 @@ const empty = {
   demoUrl: "",
   githubUrl: "",
   tech: [],
-  links: [],
 };
 
 const fromApi = (item) => ({ ...empty, ...item });
-const toApi = (values) => ({
-  ...values,
-  categoryLong: values.categoryLong || values.category,
-  links: values.links.filter((l) => l.label.trim() || l.url.trim()),
-});
 
 const columns = [
-  { label: "Proyek" },
+  { label: "Proyek", className: "pl-14" },
   { label: "Kategori" },
+  { label: "Status" },
   { label: "Tanggal" },
   { label: "Teknologi" },
   { label: "Aksi", className: "w-36" },
 ];
-function LinksEditor({ value, onChange }) {
-  return (
-    <fieldset>
-      <legend className="text-sm font-semibold text-zinc-900">Tautan tambahan</legend>
-      <ul className="mt-2 space-y-3">
-        {value.map((link, index) => (
-          <li key={index} className="flex flex-wrap gap-3 sm:flex-nowrap">
-            <input
-              value={link.label}
-              onChange={(e) => onChange(replaceAt(value, index, { ...link, label: e.target.value }))}
-              placeholder="Label, mis. Figma"
-              aria-label={`Label tautan ${index + 1}`}
-              className="h-12 w-full rounded-lg border border-zinc-200 px-4 sm:w-56"
-            />
-            <input
-              type="url"
-              value={link.url}
-              onChange={(e) => onChange(replaceAt(value, index, { ...link, url: e.target.value }))}
-              placeholder="https://"
-              aria-label={`URL tautan ${index + 1}`}
-              className="h-12 min-w-0 flex-1 rounded-lg border border-zinc-200 px-4"
-            />
-            <AdminButton variant="icon" className="size-12" onClick={() => onChange(removeAt(value, index))} aria-label={`Hapus tautan ${index + 1}`}>
-              <X className="size-4" aria-hidden="true" />
-            </AdminButton>
-          </li>
-        ))}
-      </ul>
-      <AdminButton variant="secondary" className="mt-3" onClick={() => onChange([...value, { label: "", url: "" }])}>
-        <Plus className="size-4" aria-hidden="true" /> Tambah label dan URL tujuan
-      </AdminButton>
-    </fieldset>
-  );
-}
 
 export default function ProjectsPage() {
-  const crud = useCrud(adminApi.projects, empty, { fromApi, toApi });
+  const crud = useCrud(adminApi.projects, empty, { fromApi });
   const { form } = crud;
   const [query, setQuery] = useState("");
   const q = query.trim().toLowerCase();
@@ -111,30 +68,40 @@ export default function ProjectsPage() {
         {crud.status === "error" && !crud.items.length ? (
           <PageError error={crud.error} onRetry={crud.reload} />
         ) : (
-          <AdminTable columns={columns}>
+          <AdminTable columns={columns} minWidth="56rem">
             {crud.status === "loading" && !crud.items.length ? (
               <LoadingRows colSpan={columns.length} />
             ) : visible.length === 0 ? (
               <EmptyRow colSpan={columns.length}>{q ? `Tidak ada proyek yang cocok dengan "${query}".` : undefined}</EmptyRow>
             ) : (
-              visible.map((item) => (
-                <tr key={item.id} className={rowClass}>
-                  <td className={cell}>
-                    <div className="flex items-center gap-5">
-                      <Thumb src={item.imageUrl} />
-                      <span className="font-semibold">{item.title}</span>
-                    </div>
-                  </td>
-                  <td className={`${cell} text-zinc-500`}>{item.category}</td>
-                  <td className={`${cell} text-zinc-500`}>{item.date?.slice(0, 4)}</td>
-                  <td className={`${cell} text-sm text-zinc-500`}>{(item.tech ?? []).map((t) => t.name).join(" · ")}</td>
-                  <td className={cell}>
-                    <RowActions name={item.title} onEdit={() => crud.startEdit(item)} onDelete={() => crud.askDelete(item)} />
-                  </td>
-                </tr>
-              ))
+              visible.map((item) => {
+                const index = crud.items.indexOf(item);
+                return (
+                  <tr key={item.id} className={rowClass}>
+                    <td className={cell}>
+                      <div className="flex items-center gap-4">
+                        <MoveButtons name={item.title} index={index} count={crud.items.length} onMove={crud.move} disabled={Boolean(q)} />
+                        <Thumb src={item.imageUrl} />
+                        <span className="font-semibold">{item.title}</span>
+                      </div>
+                    </td>
+                    <td className={`${cell} text-zinc-500`}>{item.category}</td>
+                    <td className={`${cell} text-zinc-500`}>{projectStatusLabel(item.status)}</td>
+                    <td className={`${cell} text-zinc-500`}>{item.date?.slice(0, 4)}</td>
+                    <td className={`${cell} text-sm text-zinc-500`}>{(item.tech ?? []).map((t) => t.name).join(" · ")}</td>
+                    <td className={cell}>
+                      <RowActions name={item.title} onEdit={() => crud.startEdit(item)} onDelete={() => crud.askDelete(item)} />
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </AdminTable>
+        )}
+        {crud.orderError && (
+          <Notice tone="error" className="mt-4">
+            Urutan gagal disimpan: {crud.orderError}
+          </Notice>
         )}
       </div>
 
@@ -144,7 +111,8 @@ export default function ProjectsPage() {
           <div className="grid gap-x-10 gap-y-6 lg:grid-cols-[19rem_1fr]">
             <ImageUpload
               label="Pratinjau gambar"
-              caption="Unggah gambar sampul"
+              caption="Unggah gambar sampul (PNG/JPG/WebP)"
+              purpose="project"
               value={form.values.imageUrl}
               onChange={(url) => form.set("imageUrl", url)}
               boxClassName="aspect-[3/2]"
@@ -152,8 +120,8 @@ export default function ProjectsPage() {
             <div className="grid content-start gap-x-10 gap-y-5 md:grid-cols-2">
               <TextField label="Judul proyek" placeholder="Masukkan judul" required {...form.bind("title")} />
               <div className="grid grid-cols-2 gap-4">
-                <SelectField label="Kategori" placeholder="Pilih kategori" options={CATEGORIES} required {...form.bind("category")} />
-                <SelectField label="Status" placeholder="Pilih status" options={STATUSES} {...form.bind("status")} />
+                <SelectField label="Kategori" placeholder="Pilih kategori" options={PROJECT_CATEGORIES} required {...form.bind("category")} />
+                <SelectField label="Status" placeholder="Pilih status" options={PROJECT_STATUSES} required {...form.bind("status")} />
               </div>
               <TextArea label="Deskripsi" placeholder="Tulis deskripsi proyek..." rows={3} className="md:col-span-2" {...form.bind("summary")} />
             </div>
@@ -172,11 +140,7 @@ export default function ProjectsPage() {
           </div>
 
           <div className="mt-6">
-            <TechPicker label="Ikon teknologi" value={form.values.tech} onChange={(tech) => form.set("tech", tech)} />
-          </div>
-
-          <div className="mt-6">
-            <LinksEditor value={form.values.links} onChange={(links) => form.set("links", links)} />
+            <TechPicker label="Ikon teknologi" withRole value={form.values.tech} onChange={(tech) => form.set("tech", tech)} />
           </div>
 
           <FormActions onCancel={crud.cancelEdit} saving={form.saving} status={form.status} />

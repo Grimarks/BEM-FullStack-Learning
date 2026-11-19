@@ -55,7 +55,7 @@ export function TechLogo({id, className = "size-8"}){
     return tech ? <BrandSvg icon={tech.icon} className={className} colored /> : null;
 }
 
-export const techName = (id) => (id === "figmae" ? "Figma" : techIcons[id]?.name ?? id);
+export const techName = (id) => (id === "figma" ? "Figma" : techIcons[id]?.name ?? id);
 
 export function ContactIcon({ type, className = "size-5" }) {
     switch (type) {
