@@ -1,0 +1,23 @@
+info:
+  name: "32 Ubah sosial"
+  type: http
+  seq: 32
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/admin/social-links/{{sosialId}}"
+  auth:
+    type: none
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "nama_platform": "GitHub",
+        "nama_akun": "contoh-baru",
+        "id_ikon": null,
+        "url_tujuan": "https://github.com/contoh-baru",
+        "sort_order": 3
+      }

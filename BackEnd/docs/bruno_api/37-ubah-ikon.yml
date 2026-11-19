@@ -1,0 +1,24 @@
+info:
+  name: "37 Ubah ikon"
+  type: http
+  seq: 37
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/admin/icons/{{ikonId}}"
+  auth:
+    type: none
+  body:
+    type: multipart-form
+    data:
+      - name: nama_ikon
+        type: text
+        value: "Ikon Bruno v2"
+      - name: kategori_ikon
+        type: text
+        value: "teknologi"
+      - name: file
+        type: file
+        value:
+          - assets/contoh-upload.png
+        contentType: image/png

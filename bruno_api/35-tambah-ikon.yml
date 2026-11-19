@@ -1,0 +1,30 @@
+info:
+  name: "35 Tambah ikon"
+  type: http
+  seq: 35
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/admin/icons"
+  auth:
+    type: none
+  body:
+    type: multipart-form
+    data:
+      - name: nama_ikon
+        type: text
+        value: "Ikon Bruno"
+      - name: kategori_ikon
+        type: text
+        value: "teknologi"
+      - name: file
+        type: file
+        value:
+          - assets/contoh-upload.png
+        contentType: image/png
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        if (res.getStatus() === 201) bru.setVar("ikonId", res.getBody().id_ikon);

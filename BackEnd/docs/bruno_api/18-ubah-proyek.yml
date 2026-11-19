@@ -1,0 +1,42 @@
+info:
+  name: "18 Ubah proyek"
+  type: http
+  seq: 18
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/admin/projects/{{proyekId}}"
+  auth:
+    type: none
+  body:
+    type: multipart-form
+    data:
+      - name: judul_proyek
+        type: text
+        value: "Proyek Bruno diperbarui"
+      - name: kategori
+        type: text
+        value: "Website"
+      - name: deskripsi
+        type: text
+        value: "Contoh request"
+      - name: tanggal
+        type: text
+        value: "2025-01-01"
+      - name: url_demo
+        type: text
+        value: ""
+      - name: url_github
+        type: text
+        value: ""
+      - name: status
+        type: text
+        value: "on-going"
+      - name: prioritas
+        type: text
+        value: "10"
+      - name: file
+        type: file
+        value:
+          - assets/contoh-upload.png
+        contentType: image/png

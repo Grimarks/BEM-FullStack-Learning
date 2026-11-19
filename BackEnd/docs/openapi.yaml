@@ -23,7 +23,6 @@ tags:
   - name: Ikon
   - name: Teknologi
   - name: Teknologi profil
-  - name: Unggah
 paths:
   /health:
     get:
@@ -172,7 +171,7 @@ paths:
         '401': {$ref: '#/components/responses/Unauthorized'}
     put:
       tags: [Profil]
-      summary: Perbarui profil
+      summary: Perbarui profil; file gambar opsional dapat disertakan langsung
       security: [{SessionCookie: []}]
       requestBody:
         required: true
@@ -180,6 +179,13 @@ paths:
           application/json:
             schema: {$ref: '#/components/schemas/ProfilRequest'}
             example: {nama_lengkap: "Nama Saya", url_foto_profil: "/uploads/profile/foto.jpg", jabatan_profesional: "Web Developer", lokasi: "Jakarta", email: "nama@example.com", biografi: "Biografi singkat", deskripsi_tentang_saya: "Deskripsi tentang saya"}
+          multipart/form-data:
+            schema:
+              allOf:
+                - {$ref: '#/components/schemas/ProfilRequest'}
+                - type: object
+                  properties:
+                    file: {type: string, format: binary, description: Gambar profil opsional}
       responses:
         '200': {description: Profil terbaru, content: {application/json: {schema: {$ref: '#/components/schemas/Profil'}}}}
         '400': {$ref: '#/components/responses/BadRequest'}
@@ -251,7 +257,7 @@ paths:
         '200': {description: Daftar proyek, content: {application/json: {example: {data: [{id_proyek: 1, judul_proyek: "Portfolio API", kategori: Website, status: konsep, prioritas: 1, tanggal: "2026-01-15T00:00:00Z"}], pagination: {page: 1, limit: 10, total_items: 1, total_pages: 1}}}}}
     post:
       tags: [Proyek]
-      summary: Tambah proyek
+      summary: Tambah proyek; file sampul opsional dapat disertakan langsung
       security: [{SessionCookie: []}]
       requestBody:
         required: true
@@ -259,6 +265,13 @@ paths:
           application/json:
             schema: {$ref: '#/components/schemas/ProyekRequest'}
             example: {judul_proyek: "Portfolio API", url_sampul_proyek: "/uploads/project/api.png", kategori: Website, deskripsi: "API portfolio dengan Go", tanggal: "2026-01-15", url_demo: "https://example.com", url_github: "https://github.com/example/repo", status: konsep, prioritas: 1}
+          multipart/form-data:
+            schema:
+              allOf:
+                - {$ref: '#/components/schemas/ProyekRequest'}
+                - type: object
+                  properties:
+                    file: {type: string, format: binary, description: Sampul proyek opsional}
       responses:
         '201': {description: Proyek dibuat, content: {application/json: {schema: {$ref: '#/components/schemas/Proyek'}}}}
         '400': {$ref: '#/components/responses/BadRequest'}
@@ -273,7 +286,7 @@ paths:
         '404': {$ref: '#/components/responses/NotFound'}
     put:
       tags: [Proyek]
-      summary: Ubah proyek
+      summary: Ubah proyek; file sampul baru opsional dapat disertakan langsung
       security: [{SessionCookie: []}]
       requestBody:
         required: true
@@ -281,6 +294,13 @@ paths:
           application/json:
             schema: {$ref: '#/components/schemas/ProyekRequest'}
             example: {judul_proyek: "Portfolio API v2", url_sampul_proyek: "/uploads/project/api.png", kategori: Website, deskripsi: "Deskripsi terbaru", tanggal: "2026-01-15", url_demo: "https://example.com", url_github: "https://github.com/example/repo", status: on-going, prioritas: 1}
+          multipart/form-data:
+            schema:
+              allOf:
+                - {$ref: '#/components/schemas/ProyekRequest'}
+                - type: object
+                  properties:
+                    file: {type: string, format: binary, description: Sampul proyek baru opsional}
       responses:
         '200': {description: Proyek diperbarui}
         '400': {$ref: '#/components/responses/BadRequest'}
@@ -454,7 +474,7 @@ paths:
         '200': {description: Daftar ikon, content: {application/json: {example: {data: [{id_ikon: 1, nama_ikon: Go, url_ikon: "/uploads/icon/go.png", kategori_ikon: teknologi}]}}}}
     post:
       tags: [Ikon]
-      summary: Tambah ikon
+      summary: Tambah ikon; file gambar opsional dapat disertakan langsung
       security: [{SessionCookie: []}]
       requestBody:
         required: true
@@ -462,6 +482,15 @@ paths:
           application/json:
             schema: {$ref: '#/components/schemas/IkonRequest'}
             example: {nama_ikon: Go, url_ikon: "/uploads/icon/go.png", kategori_ikon: teknologi}
+          multipart/form-data:
+            schema:
+              type: object
+              required: [nama_ikon, kategori_ikon]
+              properties:
+                nama_ikon: {type: string, example: Go}
+                url_ikon: {type: string, description: URL/path ikon; dapat diganti dengan file}
+                kategori_ikon: {type: string, enum: [media_sosial, teknologi]}
+                file: {type: string, format: binary, description: Berkas gambar ikon opsional}
       responses:
         '201': {description: Ikon dibuat}
         '400': {$ref: '#/components/responses/BadRequest'}
@@ -476,7 +505,7 @@ paths:
         '404': {$ref: '#/components/responses/NotFound'}
     put:
       tags: [Ikon]
-      summary: Ubah ikon
+      summary: Ubah ikon; file gambar baru opsional dapat disertakan langsung
       security: [{SessionCookie: []}]
       requestBody:
         required: true
@@ -484,6 +513,15 @@ paths:
           application/json:
             schema: {$ref: '#/components/schemas/IkonRequest'}
             example: {nama_ikon: Go, url_ikon: "/uploads/icon/go-baru.png", kategori_ikon: teknologi}
+          multipart/form-data:
+            schema:
+              type: object
+              required: [nama_ikon, kategori_ikon]
+              properties:
+                nama_ikon: {type: string, example: Go}
+                url_ikon: {type: string, description: URL/path ikon saat ini; dapat diganti dengan file}
+                kategori_ikon: {type: string, enum: [media_sosial, teknologi]}
+                file: {type: string, format: binary, description: Gambar ikon baru opsional}
       responses:
         '200': {description: Ikon diperbarui}
         '400': {$ref: '#/components/responses/BadRequest'}
@@ -592,29 +630,6 @@ paths:
       responses:
         '204': {description: Teknologi profil dihapus}
         '404': {$ref: '#/components/responses/NotFound'}
-  /api/admin/uploads:
-    post:
-      tags: [Unggah]
-      summary: Unggah gambar untuk profil, proyek, sertifikat, atau ikon
-      security: [{SessionCookie: []}]
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              required: [purpose, file]
-              properties:
-                purpose: {type: string, enum: [profile, project, certificate, icon], example: project}
-                file: {type: string, format: binary}
-      responses:
-        '201':
-          description: Gambar tersimpan
-          content:
-            application/json:
-              example: {url: "/uploads/project/abc123.png", mime_type: image/png, size: 2048, filename: abc123.png}
-        '400': {$ref: '#/components/responses/BadRequest'}
-        '401': {$ref: '#/components/responses/Unauthorized'}
 
 components:
   securitySchemes:

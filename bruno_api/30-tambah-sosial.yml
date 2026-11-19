@@ -1,0 +1,29 @@
+info:
+  name: "30 Tambah sosial"
+  type: http
+  seq: 30
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/admin/social-links"
+  auth:
+    type: none
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "nama_platform": "GitHub",
+        "nama_akun": "contoh",
+        "id_ikon": null,
+        "url_tujuan": "https://github.com/contoh",
+        "sort_order": 3
+      }
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        if (res.getStatus() === 201) bru.setVar("sosialId", res.getBody().id_media_sosial);

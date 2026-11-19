@@ -1,0 +1,20 @@
+info:
+  name: "42 Ubah teknologi"
+  type: http
+  seq: 42
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/admin/technologies/{{teknologiId}}"
+  auth:
+    type: none
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "nama_teknologi": "Teknologi Bruno v2",
+        "id_ikon": null
+      }

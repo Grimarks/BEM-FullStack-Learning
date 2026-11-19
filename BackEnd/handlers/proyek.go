@@ -10,7 +10,7 @@ import (
 
 var projectCategories = []string{"Mobile", "Website", "UI/UX", "Machine Learning", "Artificial Intelligence", "Web3", "Game Development"}
 
-func projectFromInput(in models.PermintaanProyek) (models.Proyek, error) {
+func projectFromInput(in models.ProyekRequest) (models.Proyek, error) {
 	in.Judul = strings.TrimSpace(in.Judul)
 	if in.Judul == "" {
 		return models.Proyek{}, fiber.NewError(400, "Judul proyek wajib diisi")
@@ -57,11 +57,22 @@ func (h *Handler) ListProjects(c *fiber.Ctx) error {
 }
 
 func (h *Handler) CreateProject(c *fiber.Ctx) error {
-	var input models.PermintaanProyek
+	var input models.ProyekRequest
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Body JSON tidak valid",
+			"error": "Body request tidak valid",
 		})
+	}
+	urlGambar, err := h.simpanGambar(c, "project")
+	if err != nil {
+		fiberErr, ok := err.(*fiber.Error)
+		if !ok {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Terjadi kesalahan pada server"})
+		}
+		return c.Status(fiberErr.Code).JSON(fiber.Map{"error": fiberErr.Message})
+	}
+	if urlGambar != "" {
+		input.URLSampulProyek = urlGambar
 	}
 	item, err := projectFromInput(input)
 	if err != nil {
@@ -114,11 +125,22 @@ func (h *Handler) UpdateProject(c *fiber.Ctx) error {
 			"error": err.Error(),
 		})
 	}
-	var input models.PermintaanProyek
+	var input models.ProyekRequest
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Body JSON tidak valid",
+			"error": "Body request tidak valid",
 		})
+	}
+	urlGambar, err := h.simpanGambar(c, "project")
+	if err != nil {
+		fiberErr, ok := err.(*fiber.Error)
+		if !ok {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Terjadi kesalahan pada server"})
+		}
+		return c.Status(fiberErr.Code).JSON(fiber.Map{"error": fiberErr.Message})
+	}
+	if urlGambar != "" {
+		input.URLSampulProyek = urlGambar
 	}
 	item, err := projectFromInput(input)
 	if err != nil {
@@ -126,19 +148,27 @@ func (h *Handler) UpdateProject(c *fiber.Ctx) error {
 			"error": err.Error(),
 		})
 	}
-	result := h.DB.Model(&models.Proyek{}).Where("id_proyek = ?", id).Updates(map[string]any{
-		"judul_proyek": item.Judul, "url_sampul_proyek": item.URLSampulProyek, "kategori": item.Kategori,
-		"deskripsi": item.Deskripsi, "tanggal": item.Tanggal, "url_demo": item.URLDemo,
-		"url_github": item.URLGitHub, "status": item.Status, "prioritas": item.Prioritas,
-	})
-	if result.Error != nil {
+	var proyek models.Proyek
+	if err := h.DB.First(&proyek, "id_proyek = ?", id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Proyek tidak ditemukan"})
+		}
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Terjadi kesalahan pada server",
 		})
 	}
-	if result.RowsAffected == 0 {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "Proyek tidak ditemukan",
+	proyek.Judul = item.Judul
+	proyek.URLSampulProyek = item.URLSampulProyek
+	proyek.Kategori = item.Kategori
+	proyek.Deskripsi = item.Deskripsi
+	proyek.Tanggal = item.Tanggal
+	proyek.URLDemo = item.URLDemo
+	proyek.URLGitHub = item.URLGitHub
+	proyek.Status = item.Status
+	proyek.Prioritas = item.Prioritas
+	if err := h.DB.Save(&proyek).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Terjadi kesalahan pada server",
 		})
 	}
 	return h.GetProject(c)

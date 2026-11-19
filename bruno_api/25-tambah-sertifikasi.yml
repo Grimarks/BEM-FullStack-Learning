@@ -1,0 +1,32 @@
+info:
+  name: "25 Tambah sertifikasi"
+  type: http
+  seq: 25
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/admin/certificates"
+  auth:
+    type: none
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "nama_sertifikat": "Sertifikasi Bruno",
+        "penerbit": "Belajar Mandiri",
+        "tanggal_terbit": "2025-01-01",
+        "tanggal_kadaluarsa": "",
+        "nomor_sertifikat": "BRUNO-001",
+        "url_sertifikat": "",
+        "deskripsi": "Contoh",
+        "sort_order": 3
+      }
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        if (res.getStatus() === 201) bru.setVar("sertifikasiId", res.getBody().id_sertifikasi);

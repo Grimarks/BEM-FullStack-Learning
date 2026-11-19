@@ -1,0 +1,25 @@
+info:
+  name: "13 Ubah perjalanan"
+  type: http
+  seq: 13
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/admin/experiences/{{perjalananId}}"
+  auth:
+    type: none
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "institusi": "Tempat Belajar",
+        "kategori": "pelatihan",
+        "tanggal_mulai": "2025-01-01",
+        "tanggal_selesai": "",
+        "informasi_tambahan": "Kelas Go",
+        "deskripsi": "Latihan backend terbaru",
+        "sort_order": 3
+      }

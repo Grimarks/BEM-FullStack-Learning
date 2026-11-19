@@ -1,0 +1,36 @@
+info:
+  name: "09 Ubah profil"
+  type: http
+  seq: 9
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/admin/profile"
+  auth:
+    type: none
+  body:
+    type: multipart-form
+    data:
+      - name: nama_lengkap
+        type: text
+        value: "Nama Anda"
+      - name: jabatan_profesional
+        type: text
+        value: "Web Developer"
+      - name: lokasi
+        type: text
+        value: "Indonesia"
+      - name: email
+        type: text
+        value: "halo@example.com"
+      - name: biografi
+        type: text
+        value: "Belajar web"
+      - name: deskripsi_tentang_saya
+        type: text
+        value: "Saya membangun aplikasi web."
+      - name: file
+        type: file
+        value:
+          - assets/contoh-upload.png
+        contentType: image/png

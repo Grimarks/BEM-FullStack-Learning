@@ -1,0 +1,48 @@
+info:
+  name: "16 Tambah proyek"
+  type: http
+  seq: 16
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/admin/projects"
+  auth:
+    type: none
+  body:
+    type: multipart-form
+    data:
+      - name: judul_proyek
+        type: text
+        value: "Proyek Bruno"
+      - name: kategori
+        type: text
+        value: "Website"
+      - name: deskripsi
+        type: text
+        value: "Contoh request"
+      - name: tanggal
+        type: text
+        value: "2025-01-01"
+      - name: url_demo
+        type: text
+        value: ""
+      - name: url_github
+        type: text
+        value: ""
+      - name: status
+        type: text
+        value: "konsep"
+      - name: prioritas
+        type: text
+        value: "10"
+      - name: file
+        type: file
+        value:
+          - assets/contoh-upload.png
+        contentType: image/png
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        if (res.getStatus() === 201) bru.setVar("proyekId", res.getBody().id_proyek);

@@ -1,0 +1,10 @@
+info:
+  name: "46 Hapus teknologi profil"
+  type: http
+  seq: 46
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/admin/profile/technologies/{{teknologiId}}"
+  auth:
+    type: none

@@ -13,7 +13,7 @@ type TeknologiProfil struct {
 
 func (TeknologiProfil) TableName() string { return "teknologi_profil" }
 
-type PermintaanTeknologiProfil struct {
+type TeknologiProfilRequest struct {
 	IDTeknologi uint `json:"id_teknologi"`
 	Prioritas   int  `json:"prioritas"`
 }

@@ -19,14 +19,14 @@ type Proyek struct {
 
 func (Proyek) TableName() string { return "proyek" }
 
-type PermintaanProyek struct {
-	Judul           string `json:"judul_proyek"`
-	URLSampulProyek string `json:"url_sampul_proyek"`
-	Kategori        string `json:"kategori"`
-	Deskripsi       string `json:"deskripsi"`
-	Tanggal         string `json:"tanggal"`
-	URLDemo         string `json:"url_demo"`
-	URLGitHub       string `json:"url_github"`
-	Status          string `json:"status"`
-	Prioritas       int    `json:"prioritas"`
+type ProyekRequest struct {
+	Judul           string `json:"judul_proyek" form:"judul_proyek"`
+	URLSampulProyek string `json:"url_sampul_proyek" form:"url_sampul_proyek"`
+	Kategori        string `json:"kategori" form:"kategori"`
+	Deskripsi       string `json:"deskripsi" form:"deskripsi"`
+	Tanggal         string `json:"tanggal" form:"tanggal"`
+	URLDemo         string `json:"url_demo" form:"url_demo"`
+	URLGitHub       string `json:"url_github" form:"url_github"`
+	Status          string `json:"status" form:"status"`
+	Prioritas       int    `json:"prioritas" form:"prioritas"`
 }

@@ -1,0 +1,19 @@
+info:
+  name: "21 Ubah teknologi proyek"
+  type: http
+  seq: 21
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/admin/projects/{{proyekId}}/technologies/{{teknologiId}}"
+  auth:
+    type: none
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "kategori": "Backend"
+      }

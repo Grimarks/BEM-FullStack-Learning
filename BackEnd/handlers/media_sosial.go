@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func mediaSosialDariInput(db *gorm.DB, in models.PermintaanMediaSosial) (models.MediaSosial, error) {
+func mediaSosialDariInput(db *gorm.DB, in models.MediaSosialRequest) (models.MediaSosial, error) {
 	in.NamaPlatform, in.NamaAkun = strings.TrimSpace(in.NamaPlatform), strings.TrimSpace(in.NamaAkun)
 	if in.NamaPlatform == "" || in.NamaAkun == "" {
 		return models.MediaSosial{}, fiber.NewError(400, "Nama platform dan nama akun wajib diisi")
@@ -36,7 +36,7 @@ func (h *Handler) ListMediaSosial(c *fiber.Ctx) error {
 	})
 }
 func (h *Handler) CreateMediaSosial(c *fiber.Ctx) error {
-	var input models.PermintaanMediaSosial
+	var input models.MediaSosialRequest
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Body JSON tidak valid",
@@ -82,7 +82,7 @@ func (h *Handler) UpdateMediaSosial(c *fiber.Ctx) error {
 			"error": err.Error(),
 		})
 	}
-	var input models.PermintaanMediaSosial
+	var input models.MediaSosialRequest
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Body JSON tidak valid",
@@ -94,15 +94,23 @@ func (h *Handler) UpdateMediaSosial(c *fiber.Ctx) error {
 			"error": err.Error(),
 		})
 	}
-	res := h.DB.Model(&models.MediaSosial{}).Where("id_media_sosial = ?", id).Updates(map[string]any{"nama_platform": item.NamaPlatform, "nama_akun": item.NamaAkun, "id_ikon": item.IDIkon, "url_tujuan": item.URLTujuan, "sort_order": item.UrutanTampil})
-	if res.Error != nil {
+	var mediaSosial models.MediaSosial
+	if err := h.DB.First(&mediaSosial, "id_media_sosial = ?", id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Media sosial tidak ditemukan"})
+		}
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Terjadi kesalahan pada server",
 		})
 	}
-	if res.RowsAffected == 0 {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "Media sosial tidak ditemukan",
+	mediaSosial.NamaPlatform = item.NamaPlatform
+	mediaSosial.NamaAkun = item.NamaAkun
+	mediaSosial.IDIkon = item.IDIkon
+	mediaSosial.URLTujuan = item.URLTujuan
+	mediaSosial.UrutanTampil = item.UrutanTampil
+	if err := h.DB.Save(&mediaSosial).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Terjadi kesalahan pada server",
 		})
 	}
 	return h.GetMediaSosial(c)

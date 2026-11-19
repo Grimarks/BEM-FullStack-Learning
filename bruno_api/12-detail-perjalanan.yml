@@ -1,0 +1,10 @@
+info:
+  name: "12 Detail perjalanan"
+  type: http
+  seq: 12
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/admin/experiences/{{perjalananId}}"
+  auth:
+    type: none

@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func experienceFromInput(in models.PermintaanPerjalanan) (models.Perjalanan, error) {
+func experienceFromInput(in models.PerjalananRequest) (models.Perjalanan, error) {
 	institution := strings.TrimSpace(in.Institusi)
 	if institution == "" {
 		return models.Perjalanan{}, fiber.NewError(400, "Institusi wajib diisi")
@@ -78,7 +78,7 @@ func (h *Handler) ListExperiences(c *fiber.Ctx) error {
 }
 
 func (h *Handler) CreateExperience(c *fiber.Ctx) error {
-	var input models.PermintaanPerjalanan
+	var input models.PerjalananRequest
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Body JSON tidak valid",
@@ -126,7 +126,7 @@ func (h *Handler) UpdateExperience(c *fiber.Ctx) error {
 			"error": err.Error(),
 		})
 	}
-	var input models.PermintaanPerjalanan
+	var input models.PerjalananRequest
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Body JSON tidak valid",
@@ -138,19 +138,25 @@ func (h *Handler) UpdateExperience(c *fiber.Ctx) error {
 			"error": err.Error(),
 		})
 	}
-	result := h.DB.Model(&models.Perjalanan{}).Where("id_perjalanan = ?", id).Updates(map[string]any{
-		"institusi": item.Institusi, "kategori": item.Kategori, "tanggal_mulai": item.TanggalMulai,
-		"tanggal_selesai": item.TanggalSelesai, "informasi_tambahan": item.InformasiTambahan,
-		"deskripsi": item.Deskripsi, "sort_order": item.UrutanTampil,
-	})
-	if result.Error != nil {
+	var perjalanan models.Perjalanan
+	if err := h.DB.First(&perjalanan, "id_perjalanan = ?", id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Perjalanan tidak ditemukan"})
+		}
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Terjadi kesalahan pada server",
 		})
 	}
-	if result.RowsAffected == 0 {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "Perjalanan tidak ditemukan",
+	perjalanan.Institusi = item.Institusi
+	perjalanan.Kategori = item.Kategori
+	perjalanan.TanggalMulai = item.TanggalMulai
+	perjalanan.TanggalSelesai = item.TanggalSelesai
+	perjalanan.InformasiTambahan = item.InformasiTambahan
+	perjalanan.Deskripsi = item.Deskripsi
+	perjalanan.UrutanTampil = item.UrutanTampil
+	if err := h.DB.Save(&perjalanan).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Terjadi kesalahan pada server",
 		})
 	}
 	return h.GetExperience(c)

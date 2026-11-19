@@ -1,0 +1,10 @@
+info:
+  name: "34 Daftar ikon"
+  type: http
+  seq: 34
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/admin/icons"
+  auth:
+    type: none

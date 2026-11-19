@@ -11,69 +11,49 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func (h *Handler) Upload(c *fiber.Ctx) error {
-	purpose := c.FormValue("purpose")
-	if !oneOf(purpose, "profile", "project", "certificate", "icon") {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Purpose harus profile, project, certificate, atau icon",
-		})
+func (h *Handler) simpanGambar(c *fiber.Ctx, tujuan string) (string, error) {
+	if !strings.HasPrefix(c.Get("Content-Type"), "multipart/form-data") {
+		return "", nil
 	}
-	file, err := c.FormFile("file")
+	form, err := c.Context().MultipartForm()
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "File wajib diunggah dengan field bernama file",
-		})
+		return "", fiber.NewError(fiber.StatusBadRequest, "Form multipart tidak valid")
 	}
+	files := form.File["file"]
+	if len(files) == 0 {
+		return "", nil
+	}
+	file := files[0]
 	if file.Size < 1 || file.Size > h.Cfg.MaxUploadBytes {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Ukuran file tidak valid atau melebihi batas",
-		})
+		return "", fiber.NewError(fiber.StatusBadRequest, "Ukuran file tidak valid atau melebihi batas")
 	}
 	opened, err := file.Open()
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "File tidak dapat dibaca",
-		})
+		return "", fiber.NewError(fiber.StatusBadRequest, "File tidak dapat dibaca")
 	}
 	buffer := make([]byte, 512)
 	n, readErr := opened.Read(buffer)
 	_ = opened.Close()
 	if readErr != nil && n == 0 {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "File tidak dapat dibaca",
-		})
+		return "", fiber.NewError(fiber.StatusBadRequest, "File tidak dapat dibaca")
 	}
 	mime := http.DetectContentType(buffer[:n])
 	extensions := map[string]string{"image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp"}
 	ext, ok := extensions[mime]
 	if !ok {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Hanya gambar JPEG, PNG, dan WebP yang diterima",
-		})
+		return "", fiber.NewError(fiber.StatusBadRequest, "Hanya gambar JPEG, PNG, dan WebP yang diterima")
 	}
-	if err := os.MkdirAll(filepath.Join(h.Cfg.UploadDir, purpose), 0750); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Terjadi kesalahan pada server",
-		})
+	if err := os.MkdirAll(filepath.Join(h.Cfg.UploadDir, tujuan), 0750); err != nil {
+		return "", fiber.NewError(fiber.StatusInternalServerError, "Terjadi kesalahan pada server")
 	}
 	randomBytes := make([]byte, 16)
 	if _, err := rand.Read(randomBytes); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Terjadi kesalahan pada server",
-		})
+		return "", fiber.NewError(fiber.StatusInternalServerError, "Terjadi kesalahan pada server")
 	}
 	name := hex.EncodeToString(randomBytes) + ext
-	destination := filepath.Join(h.Cfg.UploadDir, purpose, name)
+	destination := filepath.Join(h.Cfg.UploadDir, tujuan, name)
 	if err := c.SaveFile(file, destination); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Terjadi kesalahan pada server",
-		})
+		return "", fiber.NewError(fiber.StatusInternalServerError, "Terjadi kesalahan pada server")
 	}
-	url := "/uploads/" + purpose + "/" + strings.ReplaceAll(name, "\\", "")
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"url":       url,
-		"mime_type": mime,
-		"size":      file.Size,
-		"filename":  name,
-	})
+	return "/uploads/" + tujuan + "/" + name, nil
 }

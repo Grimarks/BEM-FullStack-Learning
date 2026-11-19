@@ -18,7 +18,7 @@ type Sertifikasi struct {
 
 func (Sertifikasi) TableName() string { return "sertifikasi" }
 
-type PermintaanSertifikasi struct {
+type SertifikasiRequest struct {
 	NamaSertifikat    string `json:"nama_sertifikat"`
 	Penerbit          string `json:"penerbit"`
 	TanggalTerbit     string `json:"tanggal_terbit"`

@@ -75,5 +75,4 @@ func Register(app *fiber.App, h *handlers.Handler, db *gorm.DB) {
 	teknologiProfil.Put("/:technologyId", h.UpdateProfileTechnology)
 	teknologiProfil.Delete("/:technologyId", h.RemoveProfileTechnology)
 
-	admin.Post("/uploads", h.Upload)
 }

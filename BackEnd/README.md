@@ -62,7 +62,7 @@ Setiap model dan DTO ada di file terpisah di `models/` (contoh `models/proyek.go
 - Data tunggal: `GET/PUT /api/admin/content`, `GET/PUT /api/admin/profile`
 - CRUD: `/api/admin/experiences`, `/projects`, `/certificates`, `/social-links`, `/icons`, `/technologies`
 - Relasi teknologi: `/api/admin/projects/:projectId/technologies` dan `/api/admin/profile/technologies`
-- Upload: `POST /api/admin/uploads`
+- Gambar dapat disertakan langsung sebagai field `file` pada request multipart profil, proyek, dan ikon; tidak ada endpoint upload terpisah.
 - Dashboard: `GET /api/admin/dashboard`
 
 Setiap tabel daftar memiliki GET/POST dan GET/PUT/DELETE pada `/:id`, kecuali operasi relasi yang dijelaskan di atas. Data satu baris tidak menerima ID.

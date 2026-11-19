@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func certificateFromInput(in models.PermintaanSertifikasi) (models.Sertifikasi, error) {
+func certificateFromInput(in models.SertifikasiRequest) (models.Sertifikasi, error) {
 	in.NamaSertifikat, in.Penerbit = strings.TrimSpace(in.NamaSertifikat), strings.TrimSpace(in.Penerbit)
 	if in.NamaSertifikat == "" || in.Penerbit == "" {
 		return models.Sertifikasi{}, fiber.NewError(400, "Nama sertifikat dan penerbit wajib diisi")
@@ -54,7 +54,7 @@ func (h *Handler) ListCertificates(c *fiber.Ctx) error {
 }
 
 func (h *Handler) CreateCertificate(c *fiber.Ctx) error {
-	var input models.PermintaanSertifikasi
+	var input models.SertifikasiRequest
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Body JSON tidak valid",
@@ -102,7 +102,7 @@ func (h *Handler) UpdateCertificate(c *fiber.Ctx) error {
 			"error": err.Error(),
 		})
 	}
-	var input models.PermintaanSertifikasi
+	var input models.SertifikasiRequest
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Body JSON tidak valid",
@@ -114,19 +114,26 @@ func (h *Handler) UpdateCertificate(c *fiber.Ctx) error {
 			"error": err.Error(),
 		})
 	}
-	result := h.DB.Model(&models.Sertifikasi{}).Where("id_sertifikasi = ?", id).Updates(map[string]any{
-		"nama_sertifikat": item.NamaSertifikat, "penerbit": item.Penerbit, "tanggal_terbit": item.TanggalTerbit,
-		"tanggal_kadaluarsa": item.TanggalKadaluarsa, "nomor_sertifikat": item.NomorSertifikat,
-		"url_sertifikat": item.URLSertifikat, "deskripsi": item.Deskripsi, "sort_order": item.UrutanTampil,
-	})
-	if result.Error != nil {
+	var sertifikasi models.Sertifikasi
+	if err := h.DB.First(&sertifikasi, "id_sertifikasi = ?", id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Sertifikasi tidak ditemukan"})
+		}
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Terjadi kesalahan pada server",
 		})
 	}
-	if result.RowsAffected == 0 {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "Sertifikasi tidak ditemukan",
+	sertifikasi.NamaSertifikat = item.NamaSertifikat
+	sertifikasi.Penerbit = item.Penerbit
+	sertifikasi.TanggalTerbit = item.TanggalTerbit
+	sertifikasi.TanggalKadaluarsa = item.TanggalKadaluarsa
+	sertifikasi.NomorSertifikat = item.NomorSertifikat
+	sertifikasi.URLSertifikat = item.URLSertifikat
+	sertifikasi.Deskripsi = item.Deskripsi
+	sertifikasi.UrutanTampil = item.UrutanTampil
+	if err := h.DB.Save(&sertifikasi).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Terjadi kesalahan pada server",
 		})
 	}
 	return h.GetCertificate(c)
