@@ -1,10 +1,9 @@
-import {cx} from "../../lib/cx.js"
+// LIVE CODING: komponen Eyebrow
+// Target: label kecil di atas judul, dengan titik berwarna di depannya.
+//   - props: children, dot = "bg-coral", className
+//   - gaya: font-mono, text-label, uppercase, tracking-label
+// Dipakai juga oleh SectionHeading & DetailModal, jadi semua section ikut berubah.
 
-export default function Eyebrow({ children, dot = "bg-coral", className }) {
-    return (
-        <p className={cx("flex items-center gap-2.5 font-mono text-label uppercase tracking-label", className)}>
-            <span className={cx("size-2 shrink-0 rounded-full", dot)} aria-hidden="true" />
-            {children}
-        </p>
-    );
+export default function Eyebrow({ children, className }) {
+    return <p className={className}>{children}</p>;
 }

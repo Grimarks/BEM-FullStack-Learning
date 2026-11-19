@@ -1,30 +1,12 @@
-import {cx} from "../../lib/cx.js"
+// LIVE CODING: komponen Button
+// Target: tombol pil dengan 3 variant (cream, ghost, dark).
+//   - ada `href`   -> render <a>
+//   - tanpa `href` -> render <button type="button">
+//   - props: href, variant = "cream", className, children, ...props
+// Versi sementara di bawah ini sengaja polos supaya section lain
+// (Contact, DetailModal) tetap jalan sebelum Button selesai dibuat.
 
-const variants ={
-    cream: "bg-cream text-ink hover:bg-white",
-    ghost: "border border-cream/35 bg-plum/60 text-cream backdrop-blur hover:bg-plum hover:border-cream/60",
-    dark: "bg-black text-white hover:bg-ink",
-};
-
-export default function Button({ href, variant = "cream", className, children, ...props }) {
-    const classes = cx(
-        "inline-flex items-center justify-center gap-1.5 rounded-full px-6 py-3 text-[15px] font-semibold",
-        "transition-colors duration-200",
-        variants[variant],
-        className,
-    );
-
-
-if(href){
-    return(
-       <a href={href} className={classes} {...props}>
-           {children}
-       </a>
-    );
-}
-return (
-    <button type="button" className={classes} {...props}>
-        {children}
-    </button>
-);
+export default function Button({ href, children, ...props }) {
+    if (href) return <a href={href} {...props}>{children}</a>;
+    return <button type="button" {...props}>{children}</button>;
 }
