@@ -1,0 +1,20 @@
+info:
+  name: "44 Tambah teknologi profil"
+  type: http
+  seq: 44
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/admin/profile/technologies"
+  auth:
+    type: none
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "id_teknologi": {{teknologiId}},
+        "prioritas": 2
+      }

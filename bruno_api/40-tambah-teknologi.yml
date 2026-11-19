@@ -1,0 +1,26 @@
+info:
+  name: "40 Tambah teknologi"
+  type: http
+  seq: 40
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/admin/technologies"
+  auth:
+    type: none
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "nama_teknologi": "Teknologi Bruno",
+        "id_ikon": null
+      }
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        if (res.getStatus() === 201) bru.setVar("teknologiId", res.getBody().id_teknologi);

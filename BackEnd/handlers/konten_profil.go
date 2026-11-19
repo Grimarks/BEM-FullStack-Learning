@@ -33,9 +33,15 @@ func (h *Handler) UpdateContent(c *fiber.Ctx) error {
 			"error": "Nama tampilan dan judul utama wajib diisi",
 		})
 	}
-	if !validURL(input.URLTujuanCTA) {
+	validCTA := validURL(input.URLTujuanCTA)
+	if strings.HasPrefix(input.URLTujuanCTA, "mailto:") {
+		alamat := strings.TrimPrefix(input.URLTujuanCTA, "mailto:")
+		parsed, err := mail.ParseAddress(alamat)
+		validCTA = err == nil && parsed.Address == alamat
+	}
+	if !validCTA {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "URL CTA harus berupa URL HTTP atau HTTPS yang valid",
+			"error": "URL CTA harus berupa HTTP, HTTPS, atau mailto yang valid",
 		})
 	}
 	var konten models.KontenWebsite

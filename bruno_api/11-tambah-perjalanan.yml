@@ -1,0 +1,31 @@
+info:
+  name: "11 Tambah perjalanan"
+  type: http
+  seq: 11
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/admin/experiences"
+  auth:
+    type: none
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "institusi": "Tempat Belajar",
+        "kategori": "pelatihan",
+        "tanggal_mulai": "2025-01-01",
+        "tanggal_selesai": "",
+        "informasi_tambahan": "Kelas Go",
+        "deskripsi": "Latihan backend",
+        "sort_order": 3
+      }
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        if (res.getStatus() === 201) bru.setVar("perjalananId", res.getBody().id_perjalanan);

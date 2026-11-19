@@ -1,0 +1,30 @@
+info:
+  name: "07 Ubah konten website"
+  type: http
+  seq: 7
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/admin/content"
+  auth:
+    type: none
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "nama_tampilan": "Nama Anda",
+        "judul_utama": "Halo, saya Nama Anda",
+        "label_profesi": "Web Developer",
+        "teks_utama_hero": "Membangun aplikasi",
+        "teks_pendukung": "Belajar Go",
+        "teks_hero_lainnya": "",
+        "deskripsi": "Portfolio pribadi",
+        "teks_tombol_cta": "Kontak",
+        "url_tujuan_cta": "https://example.com",
+        "deskripsi_footer": "Terima kasih",
+        "teks_hak_cipta": "Hak cipta Nama Anda",
+        "teks_tambahan_footer": ""
+      }

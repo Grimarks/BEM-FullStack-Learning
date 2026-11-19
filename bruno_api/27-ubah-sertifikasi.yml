@@ -1,0 +1,26 @@
+info:
+  name: "27 Ubah sertifikasi"
+  type: http
+  seq: 27
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/admin/certificates/{{sertifikasiId}}"
+  auth:
+    type: none
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "nama_sertifikat": "Sertifikasi Bruno v2",
+        "penerbit": "Belajar Mandiri",
+        "tanggal_terbit": "2025-01-01",
+        "tanggal_kadaluarsa": "",
+        "nomor_sertifikat": "BRUNO-001",
+        "url_sertifikat": "",
+        "deskripsi": "Contoh",
+        "sort_order": 3
+      }

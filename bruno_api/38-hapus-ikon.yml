@@ -1,0 +1,10 @@
+info:
+  name: "38 Hapus ikon"
+  type: http
+  seq: 38
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/admin/icons/{{ikonId}}"
+  auth:
+    type: none

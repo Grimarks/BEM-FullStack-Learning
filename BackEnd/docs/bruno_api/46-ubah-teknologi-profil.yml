@@ -1,0 +1,19 @@
+info:
+  name: "45 Ubah teknologi profil"
+  type: http
+  seq: 45
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/admin/profile/technologies/{{teknologiId}}"
+  auth:
+    type: none
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "prioritas": 3
+      }

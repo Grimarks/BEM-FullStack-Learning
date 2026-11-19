@@ -1,0 +1,10 @@
+info:
+  name: "14 Hapus perjalanan"
+  type: http
+  seq: 14
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/admin/experiences/{{perjalananId}}"
+  auth:
+    type: none

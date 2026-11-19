@@ -1,0 +1,10 @@
+info:
+  name: "47 Hapus teknologi"
+  type: http
+  seq: 47
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/admin/technologies/{{teknologiId}}"
+  auth:
+    type: none

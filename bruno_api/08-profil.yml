@@ -1,0 +1,10 @@
+info:
+  name: "08 Profil"
+  type: http
+  seq: 8
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/admin/profile"
+  auth:
+    type: none
